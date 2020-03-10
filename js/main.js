@@ -95,17 +95,21 @@ float scene(vec2 position) {
     return sceneDistance;
 }
 
-
-
 // Execute for every pixel.
 void main() {
- 	float dist = scene(currentPixelPosition);
-	gl_FragColor = vec4(dist,dist,dist,1.0);
+	float dist = scene(currentPixelPosition);
+	float distanceChange = fwidth(dist) * 0.5;
+	float antialiasedCutoff = smoothstep(distanceChange, -distanceChange, dist);
+	gl_FragColor = vec4(antialiasedCutoff,antialiasedCutoff,antialiasedCutoff,1.0);
 }
 
 `
 
-var material = new THREE.ShaderMaterial({vertexShader,fragmentShader})
+let extensions = {
+	derivatives: true
+}
+
+var material = new THREE.ShaderMaterial({vertexShader,fragmentShader,extensions})
 
 
 let mesh = new THREE.Mesh(geometry, material)
