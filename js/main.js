@@ -32,11 +32,11 @@ geometry.setAttribute('position', new THREE.BufferAttribute(vertices,itemsPerEle
 
 
 let vertexShader = `
-varying vec2 pos;
+varying vec2 currentPixelPosition;
 void main() {
-	pos.x = position.x;
-	pos.y = position.y;
-	pos = pos * 10.0;
+	currentPixelPosition.x = position.x;
+	currentPixelPosition.y = position.y;
+	currentPixelPosition = currentPixelPosition * 10.0;
 	// Contains the position of the current vertex.
     gl_Position = vec4(position.x,position.y,position.z,1.0); 
 }
@@ -45,7 +45,7 @@ void main() {
 
 let fragmentShader = `
 // Position of te pixel that we are currently drawing in the space [-10,10] x [-10,10].
-varying vec2 pos;
+varying vec2 currentPixelPosition;
 
 // Use high precision floats - to compute thingswithout errors
 // "When adding or dividing numbers,be precise"
@@ -69,13 +69,15 @@ float rectangle(vec2 samplePosition, vec2 halfSize){
 }
 
 vec2 translate(vec2 samplePosition, vec2 offset){
-    return samplePosition - offset;
+	return samplePosition - offset;
 }
 
-float scene(vec2 position) {
-    vec2 position2 = translate(position, vec2(3.0, 0.0));
-	float distanceToRectangle = rectangle(position2, vec2(1.0, 2.0));
-	return distanceToRectangle;
+vec2 rotate(vec2 samplePosition, float rotation){
+    const float PI = 3.14159;
+    float angle = rotation * PI * 2.0 * -1.0;
+	float sine = sin(angle);
+	float cosine = cos(angle);
+    return vec2(cosine * samplePosition.x + sine * samplePosition.y, cosine * samplePosition.y - sine * samplePosition.x);
 }
 
 vec2 scale(vec2 samplePosition, float scale){
@@ -83,10 +85,21 @@ vec2 scale(vec2 samplePosition, float scale){
 }
 
 
+float scene(vec2 position) {
+    vec2 position2 = translate(position, vec2(0.0, 0.0));
+	//position2 = rotate(position2, 0.125);
+	position2 = rotate(position2, 1.3);
+	position2 = translate(position2, vec2(2.0, 0.0));
+    position2 = scale(position2, 2.0); 
+    float sceneDistance = rectangle(position2, vec2(1.0, 1.0));
+    return sceneDistance;
+}
+
+
 
 // Execute for every pixel.
 void main() {
- 	float dist = scene(pos);
+ 	float dist = scene(currentPixelPosition);
 	gl_FragColor = vec4(dist,dist,dist,1.0);
 }
 
