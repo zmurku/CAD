@@ -53,24 +53,41 @@ precision mediump float;
 
 // Returns distance between 'samplePosition' and the border of circle placed at theo rigin (0,0). 
 // Insid it's < 0. Outside it's > 0.
-// float circle(vec2 samplePosition, float radius){
-// 	float distanceFromCenter = length(samplePosition);
-//  	float distanceFromBorder = distanceFromCenter - radius;
-//     return distanceFromBorder;
-// }
+float distanceToCircle(vec2 samplePosition, float radius){
+	float distanceFromCenter = length(samplePosition);
+ 	float distanceFromBorder = distanceFromCenter - radius;
+    return distanceFromBorder;
+}
 
 // Returns distance between 'samplePosition' and the border of rectangle placed at the origin (0,0). 
 // Insid it's < 0. Outside it's > 0.
-float rectangle(vec2 samplePosition, vec2 halfSize){
+float distanceToRectangle(vec2 samplePosition, vec2 halfSize){
     vec2 componentWiseEdgeDistance = abs(samplePosition) - halfSize;
     float outsideDistance = length(max(componentWiseEdgeDistance, 0.0));
     float insideDistance = min(max(componentWiseEdgeDistance.x, componentWiseEdgeDistance.y), 0.0);
     return outsideDistance + insideDistance;
 }
 
+float merge(float shape1, float shape2){
+    return min(shape1, shape2);
+}
+
+float intersect(float shape1, float shape2){
+    return max(shape1, shape2);
+}
+
+float subtract(float base, float subtraction){
+    return intersect(base, -subtraction);
+}
+
+float interpolate(float shape1, float shape2, float amount){
+    return mix(shape1, shape2, amount);
+}
+
 vec2 translate(vec2 samplePosition, vec2 offset){
 	return samplePosition - offset;
 }
+
 
 vec2 rotate(vec2 samplePosition, float rotation){
     const float PI = 3.14159;
@@ -86,13 +103,14 @@ vec2 scale(vec2 samplePosition, float scale){
 
 
 float scene(vec2 position) {
-    vec2 position2 = translate(position, vec2(0.0, 0.0));
-	//position2 = rotate(position2, 0.125);
-	position2 = rotate(position2, 1.3);
-	position2 = translate(position2, vec2(2.0, 0.0));
+    vec2 position2 = translate(position, vec2(3.0, 1.0));
+    position2 = rotate(position2, 1.3);
+	position2 = translate(position2, vec2(4.0, 0.0));
     position2 = scale(position2, 2.0); 
-    float sceneDistance = rectangle(position2, vec2(1.0, 1.0));
-    return sceneDistance;
+    float sceneDistance = distanceToRectangle(position2, vec2(1.0, 1.0));
+    float sceneDistance1 = distanceToCircle(position, 2.0);
+	float combination = intersect(sceneDistance, sceneDistance1);
+	return combination;
 }
 
 // Execute for every pixel.
