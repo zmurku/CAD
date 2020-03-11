@@ -85,6 +85,17 @@ float distanceToLineHorizontal(vec2 samplePosition, vec2 halfSize){
     return componentWiseEdgeDistance.y;
 }
 
+float distanceToLineVertical5(vec2 samplePosition, vec2 halfSize){
+    vec2 componentWiseEdgeDistance = abs(samplePosition) - halfSize;
+    return componentWiseEdgeDistance.x;
+}
+
+float distanceToLineHorizontal5(vec2 samplePosition, vec2 halfSize){
+    vec2 componentWiseEdgeDistance = abs(samplePosition) - halfSize;
+    return componentWiseEdgeDistance.y;
+}
+
+
 /// Returns distance to a combined shape.
 float merge(float distanceToShape1, float distanceToShape2){
     return min(distanceToShape1, distanceToShape2);
@@ -140,10 +151,16 @@ float grid_distance(vec2 position) {
 	vec2 position2 = translate(position, vec2(2.0, 0.0));
 	vec2 repPositionX = repeatX(position, 40.0);
 	vec2 repPositionY = repeatY(position, 40.0);
+	vec2 repPositionX5 = repeatX(position, 200.0);
+	vec2 repPositionY5 = repeatY(position, 200.0);
 	float lineVertical   = distanceToLineVertical(repPositionX, vec2(2.0, 0.0));
 	float lineHorizontal = distanceToLineHorizontal(repPositionY, vec2(0.0, 2.0));
+	float lineVertical5   = distanceToLineVertical5(repPositionX5, vec2(4.0, 0.0));
+	float lineHorizontal5 = distanceToLineHorizontal5(repPositionY5, vec2(0.0, 4.0));
 	float add = merge(lineVertical, lineHorizontal);
-	return add;
+	float add5 = merge(lineVertical5, lineHorizontal5);
+	float addaddXD = merge(add, add5);
+	return addaddXD;
 }
 
 float render (float distance) {
@@ -155,7 +172,7 @@ float render (float distance) {
 vec4 grid(vec2 position) {
 	float distance = grid_distance(position);
 	float alpha    = render(distance);
-	return vec4(1.0, 1.0, 1.0, alpha*0.03);
+	return vec4(1.0, 1.0, 1.0, alpha*0.08);
 }
 
 float background(vec2 position) {
