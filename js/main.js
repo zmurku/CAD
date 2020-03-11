@@ -68,8 +68,9 @@ float distanceToRectangle(vec2 samplePosition, vec2 halfSize){
     return outsideDistance + insideDistance;
 }
 
-float merge(float shape1, float shape2){
-    return min(shape1, shape2);
+/// Returns distance to a combined shape.
+float merge(float distanceToShape1, float distanceToShape2){
+    return min(distanceToShape1, distanceToShape2);
 }
 
 float intersect(float shape1, float shape2){
@@ -82,6 +83,10 @@ float subtract(float base, float subtraction){
 
 float interpolate(float shape1, float shape2, float amount){
     return mix(shape1, shape2, amount);
+}
+
+float grow(float distance, float size){
+    return distance - size;
 }
 
 vec2 translate(vec2 samplePosition, vec2 offset){
@@ -103,14 +108,13 @@ vec2 scale(vec2 samplePosition, float scale){
 
 
 float scene(vec2 position) {
-    vec2 position2 = translate(position, vec2(3.0, 1.0));
-    position2 = rotate(position2, 1.3);
-	position2 = translate(position2, vec2(4.0, 0.0));
-    position2 = scale(position2, 2.0); 
-    float sceneDistance = distanceToRectangle(position2, vec2(1.0, 1.0));
-    float sceneDistance1 = distanceToCircle(position, 2.0);
-	float combination = subtract(sceneDistance, sceneDistance1);
-	return combination;
+	vec2 position2 = translate(position, vec2(3.0, 0.0));
+	float rectangle = distanceToRectangle(position2, vec2(2.0, 2.0));
+	float circle = distanceToCircle(position, 2.0);
+	float sub = subtract(rectangle, circle);
+	float growth = grow(sub, 0.1);
+	float sub2 = subtract(growth, sub);
+	return sub2;
 }
 
 // Execute for every pixel.
