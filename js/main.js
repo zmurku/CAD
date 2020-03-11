@@ -109,7 +109,7 @@ float scene(vec2 position) {
     position2 = scale(position2, 2.0); 
     float sceneDistance = distanceToRectangle(position2, vec2(1.0, 1.0));
     float sceneDistance1 = distanceToCircle(position, 2.0);
-	float combination = intersect(sceneDistance, sceneDistance1);
+	float combination = subtract(sceneDistance, sceneDistance1);
 	return combination;
 }
 
