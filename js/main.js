@@ -175,6 +175,22 @@ vec4 grid(vec2 position) {
 	return vec4(1.0, 1.0, 1.0, alpha*0.08);
 }
 
+float distanceToFigure(vec2 position) {
+	vec2 position2 = translate(position, vec2(150.0, 0.0));
+	float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
+	float circle = distanceToCircle(position, 150.0);
+	float sub = subtract(rectangle, circle);
+	float growth = grow(sub, 3.0);
+	float sub2 = subtract(growth, sub);
+	return sub2;
+}
+
+vec4 colorFigure(vec2 position) {
+	float distance = distanceToFigure(position);
+	float alpha    = render(distance);
+	return vec4(1.0, 1.0, 1.0, alpha);
+}
+
 float background(vec2 position) {
 	float rectangle = distanceToRectangle(position, vec2(600.0, 600.0));
 	return rectangle;
@@ -188,13 +204,16 @@ vec4 mix_colors(vec4 bg, vec4 fg) {
 	return cd;
 }
 
+
 // Execute for every pixel.
 void main() {
+	vec4 fig_color  = colorFigure(currentPixelPosition);
 	vec4 grid_color = grid(currentPixelPosition);
 	vec4 bg_color   = vec4(0.03, 0.15, 0.26 ,1.0);
 	vec4 out_color  = mix_colors(bg_color,grid_color);
+	vec4 out_color_fig = mix_colors(out_color, fig_color);
 
-	gl_FragColor = out_color;
+	gl_FragColor = out_color_fig;
 
 }
 
