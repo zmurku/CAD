@@ -148,7 +148,6 @@ vec2 scale(vec2 samplePosition, float scale){
 
 
 float grid_distance(vec2 position) {
-	vec2 position2 = translate(position, vec2(2.0, 0.0));
 	vec2 repPositionX = repeatX(position, 40.0);
 	vec2 repPositionY = repeatY(position, 40.0);
 	vec2 repPositionX5 = repeatX(position, 200.0);
@@ -196,24 +195,48 @@ float background(vec2 position) {
 	return rectangle;
 }
 
-vec4 mix_colors(vec4 bg, vec4 fg) {
-	vec4 p_fg = fg * fg.a;
-	vec4 p_bg = bg * bg.a;
-	vec4 p_cd = (1.0 - fg.a) * p_bg + p_fg;
+
+vec4 mix_colors(vec4 background, vec4 foreground) {
+	vec4 p_foreground = foreground * foreground.a;
+	vec4 p_background = background * background.a;
+	vec4 p_cd = (1.0 - foreground.a) * p_background + p_foreground;
 	vec4 cd   = p_cd / p_cd.a;
 	return cd;
 }
 
+vec4 layer1(vec2 position) {
+	return vec4(0.03, 0.15, 0.26, 1.0);
+}
+
+vec4 layer2(vec2 position) {
+	vec4 background = layer1(position);
+	vec4 foreground = grid(position);
+	vec4 add = mix_colors(background, foreground);
+	return add;
+}
+
+vec4 layer3(vec2 position) {
+	vec4 grid = layer2(position);
+	vec4 figure = colorFigure(position);
+	vec4 add = mix_colors(grid, figure);
+	return add;
+}
 
 // Execute for every pixel.
 void main() {
-	vec4 fig_color  = colorFigure(currentPixelPosition);
-	vec4 grid_color = grid(currentPixelPosition);
-	vec4 bg_color   = vec4(0.03, 0.15, 0.26 ,1.0);
-	vec4 out_color  = mix_colors(bg_color,grid_color);
-	vec4 out_color_fig = mix_colors(out_color, fig_color);
+	// vec4 fig_color  = colorFigure(currentPixelPosition);
+	// vec4 grid_color = grid(currentPixelPosition);
+	// vec4 bg_color   = vec4(0.03, 0.15, 0.26 ,1.0);
+	// vec4 out_color  = mix_colors(bg_color,grid_color);
+	// vec4 out_color_fig = mix_colors(out_color, fig_color);
+	vec4 layer_3 = layer3(currentPixelPosition);
 
-	gl_FragColor = out_color_fig;
+	// gl_FragColor = out_color_fig;
+
+
+	//gl_FragColor = layer1(currentPixelPosition);// blue tlo
+	//gl_FragColor = layer2(currentPixelPosition);// blue tlo + kreski
+	gl_FragColor = layer3(currentPixelPosition);// blue tlo + kreski + shapy
 
 }
 
