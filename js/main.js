@@ -57,19 +57,25 @@ buttonPanel.appendChild(button3)
 // })
 
 
-
-
-
-
-
-
-
-
 buttonPanel.appendChild(button1)
 let selectedButton = null 
+let mouseoverButton = null
 
 
+button1.addEventListener("mouseover", function() {
+	mouseoverButton = "a"
+	refreshButtons()
+})
 
+button2.addEventListener("mouseover", function() {
+	mouseoverButton = "b"
+	refreshButtons()
+})
+
+button3.addEventListener("mouseover", function() {
+	mouseoverButton = "c"
+	refreshButtons()
+})
 
 button1.addEventListener("mousedown", function() {
 	selectedButton = 1
@@ -87,24 +93,49 @@ button3.addEventListener("mousedown", function() {
 })
 
 
+// function mousoverButtons() {
+// 	if(mouseoverButton === 1){
+// 		button1.style.backgroundColor = "#C0C0C0"
+// 	} else {
+// 		button1.style.setProperty("background-color", "#888888")
+// 	}
+	
+// 	if(mouseoverButton === 2){
+// 		button2.style.backgroundColor = "#C0C0C0"
+// 	} else {
+// 		button2.style.setProperty("background-color", "#888888")
+// 	}
+
+// 	if(mouseoverButton === 3){
+// 		button3.style.backgroundColor = "#C0C0C0"
+// 	} else {
+// 		button3.style.setProperty("background-color", "#888888")
+// 	}
+// }
+
 function refreshButtons() {
-	if(selectedButton === 1){
-		console.log(selectedButton)
+
+	if(selectedButton !== 1 && mouseoverButton === "a"){
+		button1.style.setProperty("background-color", "#C0C0C0")
+	} else if(selectedButton === 1){
 		button1.style.setProperty("background-color", "#003B62")
 	} else {
 		button1.style.setProperty("background-color", "#888888")
 	}
 
-	if(selectedButton === 2){
-		console.log(selectedButton)
+
+	if(selectedButton !== 2 && mouseoverButton === "b"){
+		button2.style.setProperty("background-color", "#C0C0C0")
+	} else if(selectedButton === 2){
 		button2.style.setProperty("background-color", "#003B62")
 	} else {
 		button2.style.setProperty("background-color", "#888888")
 	}
 	
 
-	if(selectedButton === 3){
-		console.log(selectedButton)
+	if(selectedButton !==3 && mouseoverButton === "c"){
+		button3.style.setProperty("background-color", "#C0C0C0")
+	} else if(selectedButton === 3){
 		button3.style.setProperty("background-color", "#003B62")
 	} else {
 		button3.style.setProperty("background-color", "#888888")
