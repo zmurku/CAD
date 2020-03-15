@@ -7,34 +7,118 @@ let root = document.getElementById('root')
 root.appendChild(renderer.domElement)
 let buttonPanel = document.getElementById('button-panel')
 
-// zrobić to co w poprzednim kodzie
+// zdefiniować klasę button, jeśli stworzę nową instancję, ma się dokładać 
+// na scenie nowy bloczek
+
+let button1 = document.createElement("div")
+button1.id = "button1"
+button1.innerText = "Circle"
+button1.style.setProperty("width", "100px")
+button1.style.setProperty("height", "64px")
+button1.style.setProperty("background-color", "#888888")
+button1.style.setProperty("display", "inline-block")
 
 
+let button2 = document.createElement("div")
+button2.id = "button2"
+button2.innerText = "Rectangle"
+button2.style.setProperty("background-color", "#888888")
+button2.style.setProperty("width", "100px")
+button2.style.setProperty("height", "64px")
+button2.style.setProperty("display", "inline-block")
+buttonPanel.appendChild(button2)
+
+let button3 = document.createElement("div")
+button3.id = "button3"
+button3.innerText = "Triangle"
+button3.style.setProperty("background-color", "#888888")
+button3.style.setProperty("width", "100px")
+button3.style.setProperty("height", "64px")
+button3.style.setProperty("display", "inline-block")
+buttonPanel.appendChild(button3)
+
+buttonPanel.appendChild(button1)
 let selectedButton = null 
 let mouseoverButton = null
 
 
-class Button {
-	constructor(name) {
-		this.name = name
-		this.draw()
+button1.addEventListener("mouseout", function() {
+	mouseoverButton = "out_1"
+	refreshButtons()
+})
+
+button2.addEventListener("mouseout", function() {
+	mouseoverButton = "out_2"
+	refreshButtons()
+})
+
+button3.addEventListener("mouseout", function() {
+	mouseoverButton = "out_3"
+	refreshButtons()
+})
+
+button1.addEventListener("mouseover", function() {
+	mouseoverButton = "circle"
+	refreshButtons()
+})
+
+button2.addEventListener("mouseover", function() {
+	mouseoverButton = "rectangle"
+	refreshButtons()
+})
+
+button3.addEventListener("mouseover", function() {
+	mouseoverButton = "triangle"
+	refreshButtons()
+})
+
+button1.addEventListener("mousedown", function() {
+	selectedButton = "circle"
+	refreshButtons()
+})
+
+button2.addEventListener("mousedown", function() {
+	selectedButton = "rectangle"
+	refreshButtons()
+})
+
+button3.addEventListener("mousedown", function() {
+	selectedButton = "triangle"
+	refreshButtons()
+})
+
+
+function refreshButtons() {
+
+	if(selectedButton !== "circle" && mouseoverButton === "circle"){
+		button1.style.setProperty("background-color", "#C0C0C0")
+	} else if(selectedButton === "circle"){
+		button1.style.setProperty("background-color", "#003B62")
+	} else {
+		button1.style.setProperty("background-color", "#888888")
 	}
-	draw() {
-		let name = document.createElement("div")
-		name.id = "name"
-		name.innerText = this.name
-		name.style.setProperty("background-color", "#888888")
-		name.style.setProperty("width", "100px")
-		name.style.setProperty("height", "64px")
-		name.style.setProperty("display", "inline-block")
-		buttonPanel.appendChild(name)
+
+
+	if(selectedButton !== "rectangle" && mouseoverButton === "rectangle"){
+		button2.style.setProperty("background-color", "#C0C0C0")
+	} else if(selectedButton === "rectangle"){
+		button2.style.setProperty("background-color", "#003B62")
+	} else {
+		button2.style.setProperty("background-color", "#888888")
 	}
+	
+
+	if(selectedButton !== "triangle" && mouseoverButton === "triangle"){
+		button3.style.setProperty("background-color", "#C0C0C0")
+	} else if(selectedButton === "triangle"){
+		button3.style.setProperty("background-color", "#003B62")
+	} else {
+		button3.style.setProperty("background-color", "#888888")
+	}
+
 }
 
 
-let button1 = new Button("circle")
-let button2 = new Button("rectangle")
-let button3 = new Button("triangle")
 
 
 
