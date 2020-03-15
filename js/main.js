@@ -6,12 +6,9 @@ renderer.setSize(width,height)
 let root = document.getElementById('root')
 root.appendChild(renderer.domElement)
 let buttonPanel = document.getElementById('button-panel')
-//po nacisnieciu na circle zmienia kolor i go zostawia, 
-//po nacisnieciu na rectangle circle wraca do defaultowego koloru, rectangle przyjmuje nowy
-//dodać triangle
-//po naciśnięciu na przycisk uruchamiam funkcję refresh 
 
-
+// zdefiniować klasę button, jeśli stworzę nową instancję, ma się dokładać 
+// na scenie nowy bloczek
 
 let button1 = document.createElement("div")
 button1.id = "button1"
@@ -20,7 +17,6 @@ button1.style.setProperty("width", "100px")
 button1.style.setProperty("height", "64px")
 button1.style.setProperty("background-color", "#888888")
 button1.style.setProperty("display", "inline-block")
-
 
 
 let button2 = document.createElement("div")
@@ -32,14 +28,6 @@ button2.style.setProperty("height", "64px")
 button2.style.setProperty("display", "inline-block")
 buttonPanel.appendChild(button2)
 
-// button2.addEventListener("mouseover", function() {
-// 	button2.style.backgroundColor = "#C0C0C0"
-// })
-// button2.addEventListener("mouseout", function() {
-// 	button2.style.backgroundColor = "#888888"
-// })
-
-
 let button3 = document.createElement("div")
 button3.id = "button3"
 button3.innerText = "Triangle"
@@ -49,93 +37,80 @@ button3.style.setProperty("height", "64px")
 button3.style.setProperty("display", "inline-block")
 buttonPanel.appendChild(button3)
 
-// button3.addEventListener("mouseover", function() {
-// 	button3.style.backgroundColor = "#C0C0C0"
-// })
-// button3.addEventListener("mouseout", function() {
-// 	button3.style.backgroundColor = "#888888"
-// })
-
-
 buttonPanel.appendChild(button1)
 let selectedButton = null 
 let mouseoverButton = null
 
 
+button1.addEventListener("mouseout", function() {
+	mouseoverButton = "out_1"
+	refreshButtons()
+})
+
+button2.addEventListener("mouseout", function() {
+	mouseoverButton = "out_2"
+	refreshButtons()
+})
+
+button3.addEventListener("mouseout", function() {
+	mouseoverButton = "out_3"
+	refreshButtons()
+})
+
 button1.addEventListener("mouseover", function() {
-	mouseoverButton = "a"
+	mouseoverButton = "circle"
 	refreshButtons()
 })
 
 button2.addEventListener("mouseover", function() {
-	mouseoverButton = "b"
+	mouseoverButton = "rectangle"
 	refreshButtons()
 })
 
 button3.addEventListener("mouseover", function() {
-	mouseoverButton = "c"
+	mouseoverButton = "triangle"
 	refreshButtons()
 })
 
 button1.addEventListener("mousedown", function() {
-	selectedButton = 1
+	selectedButton = "circle"
 	refreshButtons()
 })
 
 button2.addEventListener("mousedown", function() {
-	selectedButton = 2
+	selectedButton = "rectangle"
 	refreshButtons()
 })
 
 button3.addEventListener("mousedown", function() {
-	selectedButton = 3
+	selectedButton = "triangle"
 	refreshButtons()
 })
 
 
-// function mousoverButtons() {
-// 	if(mouseoverButton === 1){
-// 		button1.style.backgroundColor = "#C0C0C0"
-// 	} else {
-// 		button1.style.setProperty("background-color", "#888888")
-// 	}
-	
-// 	if(mouseoverButton === 2){
-// 		button2.style.backgroundColor = "#C0C0C0"
-// 	} else {
-// 		button2.style.setProperty("background-color", "#888888")
-// 	}
-
-// 	if(mouseoverButton === 3){
-// 		button3.style.backgroundColor = "#C0C0C0"
-// 	} else {
-// 		button3.style.setProperty("background-color", "#888888")
-// 	}
-// }
-
 function refreshButtons() {
 
-	if(selectedButton !== 1 && mouseoverButton === "a"){
+	if(selectedButton !== "circle" && mouseoverButton === "circle"){
 		button1.style.setProperty("background-color", "#C0C0C0")
-	} else if(selectedButton === 1){
+	} else if(selectedButton === "circle"){
 		button1.style.setProperty("background-color", "#003B62")
 	} else {
 		button1.style.setProperty("background-color", "#888888")
 	}
 
 
-	if(selectedButton !== 2 && mouseoverButton === "b"){
+	if(selectedButton !== "rectangle" && mouseoverButton === "rectangle"){
 		button2.style.setProperty("background-color", "#C0C0C0")
-	} else if(selectedButton === 2){
+	} else if(selectedButton === "rectangle"){
 		button2.style.setProperty("background-color", "#003B62")
 	} else {
 		button2.style.setProperty("background-color", "#888888")
 	}
 	
 
-	if(selectedButton !==3 && mouseoverButton === "c"){
+	if(selectedButton !== "triangle" && mouseoverButton === "triangle"){
 		button3.style.setProperty("background-color", "#C0C0C0")
-	} else if(selectedButton === 3){
+	} else if(selectedButton === "triangle"){
 		button3.style.setProperty("background-color", "#003B62")
 	} else {
 		button3.style.setProperty("background-color", "#888888")
