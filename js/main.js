@@ -3,13 +3,125 @@ let width  = 600;
 let height = 600;
 let renderer = new THREE.WebGLRenderer()
 renderer.setSize(width,height)
-document.body.appendChild(renderer.domElement)
+let root = document.getElementById('root')
+root.appendChild(renderer.domElement)
+let buttonPanel = document.getElementById('button-panel')
+//po nacisnieciu na circle zmienia kolor i go zostawia, 
+//po nacisnieciu na rectangle circle wraca do defaultowego koloru, rectangle przyjmuje nowy
+//dodać triangle
+//po naciśnięciu na przycisk uruchamiam funkcję refresh 
+
+
+
+let button1 = document.createElement("div")
+button1.id = "button1"
+button1.innerText = "Circle"
+button1.style.setProperty("width", "100px")
+button1.style.setProperty("height", "64px")
+button1.style.setProperty("background-color", "#888888")
+button1.style.setProperty("display", "inline-block")
+
+
+
+let button2 = document.createElement("div")
+button2.id = "button2"
+button2.innerText = "Rectangle"
+button2.style.setProperty("background-color", "#888888")
+button2.style.setProperty("width", "100px")
+button2.style.setProperty("height", "64px")
+button2.style.setProperty("display", "inline-block")
+buttonPanel.appendChild(button2)
+
+// button2.addEventListener("mouseover", function() {
+// 	button2.style.backgroundColor = "#C0C0C0"
+// })
+// button2.addEventListener("mouseout", function() {
+// 	button2.style.backgroundColor = "#888888"
+// })
+
+
+let button3 = document.createElement("div")
+button3.id = "button3"
+button3.innerText = "Triangle"
+button3.style.setProperty("background-color", "#888888")
+button3.style.setProperty("width", "100px")
+button3.style.setProperty("height", "64px")
+button3.style.setProperty("display", "inline-block")
+buttonPanel.appendChild(button3)
+
+// button3.addEventListener("mouseover", function() {
+// 	button3.style.backgroundColor = "#C0C0C0"
+// })
+// button3.addEventListener("mouseout", function() {
+// 	button3.style.backgroundColor = "#888888"
+// })
+
+
+
+
+
+
+
+
+
+
+buttonPanel.appendChild(button1)
+let selectedButton = null 
+
+
+
+
+button1.addEventListener("mousedown", function() {
+	selectedButton = 1
+	refreshButtons()
+})
+
+button2.addEventListener("mousedown", function() {
+	selectedButton = 2
+	refreshButtons()
+})
+
+button3.addEventListener("mousedown", function() {
+	selectedButton = 3
+	refreshButtons()
+})
+
+
+function refreshButtons() {
+	if(selectedButton === 1){
+		console.log(selectedButton)
+		button1.style.setProperty("background-color", "#003B62")
+	} else {
+		button1.style.setProperty("background-color", "#888888")
+	}
+
+	if(selectedButton === 2){
+		console.log(selectedButton)
+		button2.style.setProperty("background-color", "#003B62")
+	} else {
+		button2.style.setProperty("background-color", "#888888")
+	}
+	
+
+	if(selectedButton === 3){
+		console.log(selectedButton)
+		button3.style.setProperty("background-color", "#003B62")
+	} else {
+		button3.style.setProperty("background-color", "#888888")
+	}
+
+}
+
+
+
+
 
 let fieldOfViewDegrees = 45 
 let aspectRatio        = window.innerWidth / window.innerHeight
 let nearClippingPlane  = 1
 let farClippingPlane   = 500
 let camera = new THREE.PerspectiveCamera(fieldOfViewDegrees, aspectRatio, nearClippingPlane, farClippingPlane)
+
 
 camera.position.set(0, 0, 100)
 camera.lookAt(0, 0, 0);
@@ -251,6 +363,5 @@ var material = new THREE.ShaderMaterial({vertexShader,fragmentShader,extensions}
 
 
 let mesh = new THREE.Mesh(geometry, material)
-
 scene.add(mesh)
 renderer.render(scene, camera)
