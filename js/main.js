@@ -3,40 +3,96 @@ let width  = 600;
 let height = 600;
 let renderer = new THREE.WebGLRenderer()
 renderer.setSize(width,height)
-let root = document.getElementById('root')
-root.appendChild(renderer.domElement)
+let canvas = document.getElementById('root')
+canvas.appendChild(renderer.domElement)
 let buttonPanel = document.getElementById('button-panel')
-
-// zrobić to co w poprzednim kodzie
-
-
-let selectedButton = null 
-let mouseoverButton = null
+let buttonPanel_2 = document.getElementById('button-panel-2')
 
 
-class Button {
-	constructor(name) {
-		this.name = name
-		this.draw()
-	}
-	draw() {
-		let name = document.createElement("div")
-		name.id = "name"
-		name.innerText = this.name
-		name.style.setProperty("background-color", "#888888")
-		name.style.setProperty("width", "100px")
-		name.style.setProperty("height", "64px")
-		name.style.setProperty("display", "inline-block")
-		buttonPanel.appendChild(name)
+// po kliknięciu  w jakieś miejsce na canvasie ma się wyświetlić info o:
+// położeniu i wciśniętych przysiskach
+
+buttons = {}
+let selectedButtons = {}
+
+function getCursorPosition(canvas, event) {
+    let rect = canvas.getBoundingClientRect()
+    let x = event.clientX - rect.left
+    let y = event.clientY - rect.top
+    console.log("x: " + x + " y: " + y)
+}
+
+canvas.addEventListener('mousedown', function(e) {
+    getCursorPosition(canvas, e)
+})
+
+function updateButtons() {
+    for(let buttonName in buttons) {
+		let button = buttons[buttonName]
+		button.domElement.style.setProperty("background-color", "#888888")
+
+		let doHighlight = false 
+        for(let groupName in selectedButtons) {
+			if(selectedButtons[groupName] === buttonName) {
+				doHighlight = true
+			}
+		}
+
+		if(doHighlight) {
+			button.domElement.style.setProperty("background-color", "#003B62")
+		}
 	}
 }
 
+class Button {
+	constructor(name,groupName) {
+		this.name      = name
+		this.groupName = groupName
+        buttons[name]  = this
+		let divElement = document.createElement("div")
+		divElement.id  = this.name
+		divElement.innerText = this.name
+		divElement.style.setProperty("background-color", "#888888")
+		divElement.style.setProperty("width", "100px")
+		divElement.style.setProperty("height", "64px")
+		divElement.style.setProperty("display", "inline-block")
 
-let button1 = new Button("circle")
-let button2 = new Button("rectangle")
-let button3 = new Button("triangle")
+		divElement.addEventListener("mouseover", () => {
+			if(selectedButtons[groupName] !== this.name) {
+				divElement.style.setProperty("background-color", "#C0C0C0")	
+			}
+		})
 
+		divElement.addEventListener("mouseout", () => {
+			if(selectedButtons[groupName] !== this.name){
+				divElement.style.setProperty("background-color", "#888888")
+			}
+		})
 
+		divElement.addEventListener("mousedown", function() {
+			selectedButtons[groupName] = name
+			updateButtons()
+		})
+		
+		this.domElement = divElement
+	}
+}
+
+let buttonCircle    = new Button("circle","shape")
+let buttonRectangle = new Button("rectangle","shape")
+let buttonTriangle  = new Button("triangle","shape")
+
+buttonPanel.appendChild(buttonCircle.domElement)
+buttonPanel.appendChild(buttonRectangle.domElement)
+buttonPanel.appendChild(buttonTriangle.domElement)
+
+let buttonMerge     = new Button("merge","operation")
+let buttonSubtract  = new Button("subtract","operation")
+let buttonIntersect = new Button("intersect","operation")
+
+buttonPanel_2.appendChild(buttonMerge.domElement)
+buttonPanel_2.appendChild(buttonSubtract.domElement)
+buttonPanel_2.appendChild(buttonIntersect.domElement)
 
 let fieldOfViewDegrees = 45 
 let aspectRatio        = window.innerWidth / window.innerHeight
