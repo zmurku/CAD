@@ -15,16 +15,7 @@ let buttonPanel_2 = document.getElementById('button-panel-2')
 buttons = {}
 let selectedButtons = {}
 
-function getCursorPosition(canvas, event) {
-    let rect = canvas.getBoundingClientRect()
-    let x = event.clientX - rect.left
-    let y = event.clientY - rect.top
-    console.log("x: " + x + " y: " + y)
-}
 
-canvas.addEventListener('mousedown', function(e) {
-    getCursorPosition(canvas, e)
-})
 
 function updateButtons() {
     for(let buttonName in buttons) {
@@ -121,7 +112,7 @@ let vertices = new Float32Array([
 let itemsPerElement = 3
 geometry.setAttribute('position', new THREE.BufferAttribute(vertices,itemsPerElement))
 
-
+geometry.dynamic = true
 
 let vertexShader = `
 varying vec2 currentPixelPosition;
@@ -135,7 +126,7 @@ void main() {
 
 `
 
-let fragmentShader = `
+let fragmentShaderHeader = `
 
 uniform vec2 u_resolution;
 uniform float u_time;
@@ -264,18 +255,31 @@ vec4 grid(vec2 position) {
 	return vec4(1.0, 1.0, 1.0, alpha*0.08);
 }
 
-float distanceToFigure(vec2 position) {
+// float figure_part_1(vec2 position) {
+// 	vec2 position2 = translate(position, vec2(150.0, 0.0));
+// 	float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
+// 	float circle = distanceToCircle(position, 150.0);
+// 	float sub = subtract(rectangle, circle);
+// 	float growth = grow(sub, 3.0);
+// 	float sub2 = subtract(growth, sub);
+// 	return sub2;
+// }
+
+float figure_part_1(vec2 position) {
 	vec2 position2 = translate(position, vec2(150.0, 0.0));
 	float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
+	return rectangle;
+}
+
+float figure_part_2(vec2 position) {
 	float circle = distanceToCircle(position, 150.0);
+	float rectangle = figure_part_1(position);
 	float sub = subtract(rectangle, circle);
-	float growth = grow(sub, 3.0);
-	float sub2 = subtract(growth, sub);
-	return sub2;
+	return sub;
 }
 
 vec4 colorFigure(vec2 position) {
-	float distance = distanceToFigure(position);
+	float distance = figure_part_2(position);
 	float alpha    = render(distance);
 	return vec4(1.0, 1.0, 1.0, alpha);
 }
@@ -311,35 +315,70 @@ vec4 layer3(vec2 position) {
 	vec4 add = mix_colors(grid, figure);
 	return add;
 }
+`
 
+
+let fragmentShaderRunner = `
 // Execute for every pixel.
 void main() {
-	// vec4 fig_color  = colorFigure(currentPixelPosition);
-	// vec4 grid_color = grid(currentPixelPosition);
-	// vec4 bg_color   = vec4(0.03, 0.15, 0.26 ,1.0);
-	// vec4 out_color  = mix_colors(bg_color,grid_color);
-	// vec4 out_color_fig = mix_colors(out_color, fig_color);
-	vec4 layer_3 = layer3(currentPixelPosition);
-
-	// gl_FragColor = out_color_fig;
-
-
-	//gl_FragColor = layer1(currentPixelPosition);// blue tlo
-	//gl_FragColor = layer2(currentPixelPosition);// blue tlo + kreski
-	gl_FragColor = layer3(currentPixelPosition);// blue tlo + kreski + shapy
-
+	gl_FragColor = layer2(currentPixelPosition);
 }
-
-
 `
+
+
+let fragmentShader = fragmentShaderHeader + fragmentShaderRunner
+
+
+
+
 
 let extensions = {
 	derivatives: true
 }
 
-var material = new THREE.ShaderMaterial({vertexShader,fragmentShader,extensions})
-
+let material = new THREE.ShaderMaterial({vertexShader,fragmentShader,extensions})
 
 let mesh = new THREE.Mesh(geometry, material)
+
+function getCursorPosition(canvas, event) {
+	let fragmentShaderRunner2 = `
+	void main() {
+		gl_FragColor = layer3(currentPixelPosition);
+	}
+	`
+	let fragmentShader2 = fragmentShaderHeader + fragmentShaderRunner2
+	let material2 = new THREE.ShaderMaterial({vertexShader:vertexShader,fragmentShader:fragmentShader2,extensions})
+
+
+	mesh.material = material2
+	// geometry.buffersNeedUpdate = true;
+	// geometry.uvsNeedUpdate = true;
+	// mesh.needsUpdate = true
+	// material.fragmentShader = fragmentShader2
+	// material.needsUpdate = true
+	// console.log(mesh.material)
+    let rect = canvas.getBoundingClientRect()
+    let x = event.clientX - rect.left
+    let y = event.clientY - rect.top
+	console.log("x: " + x + " y: " + y)
+	
+}
+
+canvas.addEventListener('mousedown', function(e) {
+    getCursorPosition(canvas, e)
+})
+
 scene.add(mesh)
-renderer.render(scene, camera)
+
+function render() {
+	renderer.render(scene, camera)
+	window.requestAnimationFrame(render)
+}
+
+window.requestAnimationFrame(render)
+
+
+
+//po naciśnięciu na grid zmienia się jego kolor na czerwony.
+//wywalić większość shadera, zostawić tylko niezbędne
+//zrobić material2 i przekazać go do mesha 
