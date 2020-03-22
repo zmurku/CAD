@@ -264,26 +264,22 @@ vec4 grid(vec2 position) {
 // 	float sub2 = subtract(growth, sub);
 // 	return sub2;
 // }
-
-float figure_part_1(vec2 position) {
-	vec2 position2 = translate(position, vec2(150.0, 0.0));
-	float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
-	return rectangle;
-}
-
-float figure_part_2(vec2 position) {
-	float circle = distanceToCircle(position, 150.0);
-	float rectangle = figure_part_1(position);
-	float sub = subtract(rectangle, circle);
-	return sub;
-}
-
+`
+let fragmentShaderColorFigure = `
 vec4 colorFigure(vec2 position) {
-	float distance = figure_part_2(position);
-	float alpha    = render(distance);
-	return vec4(1.0, 1.0, 1.0, alpha);
+float distance = figure_part_1(position); 
+float alpha    = render(distance);
+return vec4(1.0, 1.0, 1.0, alpha);
 }
-
+`
+let fragmentShaderColorFigure2 = `
+vec4 colorFigure(vec2 position) {
+float distance = figure_part_2(position); 
+float alpha    = render(distance);
+return vec4(1.0, 1.0, 1.0, alpha);
+}
+`
+let fragmentShaderEnding = `
 float background(vec2 position) {
 	float rectangle = distanceToRectangle(position, vec2(600.0, 600.0));
 	return rectangle;
@@ -315,22 +311,23 @@ vec4 layer3(vec2 position) {
 	vec4 add = mix_colors(grid, figure);
 	return add;
 }
-`
 
-
-let fragmentShaderRunner = `
 // Execute for every pixel.
 void main() {
-	gl_FragColor = layer2(currentPixelPosition);
+	gl_FragColor = layer3(currentPixelPosition);
+}
+`
+let figureDescription = `
+float figure_part_1(vec2 position) {
+	vec2 position2 = translate(position, vec2(150.0, 0.0));
+	float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
+	return rectangle;
 }
 `
 
+let fragmentShader = fragmentShaderHeader + figureDescription + fragmentShaderColorFigure + fragmentShaderEnding 
 
-let fragmentShader = fragmentShaderHeader + fragmentShaderRunner
-
-
-
-
+console.log(fragmentShader)
 
 let extensions = {
 	derivatives: true
@@ -340,23 +337,31 @@ let material = new THREE.ShaderMaterial({vertexShader,fragmentShader,extensions}
 
 let mesh = new THREE.Mesh(geometry, material)
 
+let figureNumber = 1
+
 function getCursorPosition(canvas, event) {
-	let fragmentShaderRunner2 = `
-	void main() {
-		gl_FragColor = layer3(currentPixelPosition);
+	figureNumber = figureNumber + 1
+	let figureDescription2 = `
+	float figure_part_${figureNumber}(vec2 position) {
+		float circle = distanceToCircle(position, 150.0);
+		float rectangle = figure_part_1(position);
+		float sub = subtract(rectangle, circle);
+		return sub;
 	}
 	`
-	let fragmentShader2 = fragmentShaderHeader + fragmentShaderRunner2
+
+
+	figureDescription = figureDescription + figureDescription2
+	let fragmentShader2 = fragmentShaderHeader + figureDescription + fragmentShaderColorFigure2 + fragmentShaderEnding 
+	// let fragmentShader2 = fragmentShaderHeader + figureDescription + fragmentShaderColorFigure2 + fragmentShaderEnding
+
+	console.log(fragmentShader2)
+
 	let material2 = new THREE.ShaderMaterial({vertexShader:vertexShader,fragmentShader:fragmentShader2,extensions})
+	
 
 
 	mesh.material = material2
-	// geometry.buffersNeedUpdate = true;
-	// geometry.uvsNeedUpdate = true;
-	// mesh.needsUpdate = true
-	// material.fragmentShader = fragmentShader2
-	// material.needsUpdate = true
-	// console.log(mesh.material)
     let rect = canvas.getBoundingClientRect()
     let x = event.clientX - rect.left
     let y = event.clientY - rect.top
@@ -377,8 +382,3 @@ function render() {
 
 window.requestAnimationFrame(render)
 
-
-
-//po naciśnięciu na grid zmienia się jego kolor na czerwony.
-//wywalić większość shadera, zostawić tylko niezbędne
-//zrobić material2 i przekazać go do mesha 
