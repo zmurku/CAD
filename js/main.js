@@ -350,15 +350,30 @@ function getCursorPosition(canvas, event) {
     let y = 600.0 - (event.clientY - rect.top)
 	console.log("x: " + x + " y: " + y)
 	
+	console.log(selectedButtons.shape)
 	figureNumber = figureNumber + 1
-	let figureDescription2 = `
-	float figure_part_${figureNumber}(vec2 position) {
-		vec2 position2 = translate(position,vec2(${x},${y}));
-		float circle = distanceToCircle(position2, 50.0);
-		float old = figure_part_${figureNumber-1}(position);
-		float sub = subtract(old, circle);
-		return sub;
-	}`
+
+	let figureDescription2 = null;
+
+	if (selectedButtons.shape === "circle") {
+		figureDescription2 = `
+			float figure_part_${figureNumber}(vec2 position) {
+				vec2 position2 = translate(position,vec2(${x},${y}));
+				float circle = distanceToCircle(position2, 50.0);
+				float old = figure_part_${figureNumber-1}(position);
+				float sub = subtract(old, circle);
+				return sub;
+			}`
+    } else if (selectedButtons.shape === "rectangle") { 
+		figureDescription2 = `
+			float figure_part_${figureNumber}(vec2 position) {
+				vec2 position2 = translate(position,vec2(${x},${y}));
+				float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
+				float old = figure_part_${figureNumber-1}(position);
+				float sub = subtract(old, rectangle);
+				return sub;
+		}`
+	}
 	let fragmentShaderColorFigure2 = `
 	vec4 colorFigure(vec2 position) {
 		float distance = figure_part_${figureNumber}(position); 
