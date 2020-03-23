@@ -117,8 +117,9 @@ geometry.dynamic = true
 let vertexShader = `
 varying vec2 currentPixelPosition;
 void main() {
-	currentPixelPosition.x = position.x;
-	currentPixelPosition.y = position.y;
+	vec3 position2 = position + vec3(1.0,1.0,0.0);
+	currentPixelPosition.x = position2.x / 2.0;
+	currentPixelPosition.y = position2.y / 2.0;
 	currentPixelPosition = currentPixelPosition * 600.0;
 	// Contains the position of the current vertex.
     gl_Position = vec4(position.x,position.y,position.z,1.0); 
@@ -149,7 +150,8 @@ float distanceToCircle(vec2 samplePosition, float radius){
 
 // Returns distance between 'samplePosition' and the border of rectangle placed at the origin (0,0). 
 // Insid it's < 0. Outside it's > 0.
-float distanceToRectangle(vec2 samplePosition, vec2 halfSize){
+float distanceToRectangle(vec2 samplePosition, vec2 size){
+	vec2 halfSize= size / 2.0;
     vec2 componentWiseEdgeDistance = abs(samplePosition) - halfSize;
     float outsideDistance = length(max(componentWiseEdgeDistance, 0.0));
     float insideDistance = min(max(componentWiseEdgeDistance.x, componentWiseEdgeDistance.y), 0.0);
@@ -229,14 +231,14 @@ vec2 scale(vec2 samplePosition, float scale){
 
 
 float grid_distance(vec2 position) {
-	vec2 repPositionX = repeatX(position, 40.0);
-	vec2 repPositionY = repeatY(position, 40.0);
-	vec2 repPositionX5 = repeatX(position, 200.0);
-	vec2 repPositionY5 = repeatY(position, 200.0);
-	float lineVertical   = distanceToLineVertical(repPositionX, vec2(2.0, 0.0));
-	float lineHorizontal = distanceToLineHorizontal(repPositionY, vec2(0.0, 2.0));
-	float lineVertical5   = distanceToLineVertical5(repPositionX5, vec2(4.0, 0.0));
-	float lineHorizontal5 = distanceToLineHorizontal5(repPositionY5, vec2(0.0, 4.0));
+	vec2 repPositionX = repeatX(position, 20.0);
+	vec2 repPositionY = repeatY(position, 20.0);
+	vec2 repPositionX5 = repeatX(position, 100.0);
+	vec2 repPositionY5 = repeatY(position, 100.0);
+	float lineVertical   = distanceToLineVertical(repPositionX, vec2(1.0, 0.0));
+	float lineHorizontal = distanceToLineHorizontal(repPositionY, vec2(0.0, 1.0));
+	float lineVertical5   = distanceToLineVertical5(repPositionX5, vec2(2.0, 0.0));
+	float lineHorizontal5 = distanceToLineHorizontal5(repPositionY5, vec2(0.0, 2.0));
 	float add = merge(lineVertical, lineHorizontal);
 	float add5 = merge(lineVertical5, lineHorizontal5);
 	float addaddXD = merge(add, add5);
@@ -268,13 +270,6 @@ vec4 grid(vec2 position) {
 let fragmentShaderColorFigure = `
 vec4 colorFigure(vec2 position) {
 float distance = figure_part_1(position); 
-float alpha    = render(distance);
-return vec4(1.0, 1.0, 1.0, alpha);
-}
-`
-let fragmentShaderColorFigure2 = `
-vec4 colorFigure(vec2 position) {
-float distance = figure_part_2(position); 
 float alpha    = render(distance);
 return vec4(1.0, 1.0, 1.0, alpha);
 }
@@ -319,7 +314,7 @@ void main() {
 `
 let figureDescription = `
 float figure_part_1(vec2 position) {
-	vec2 position2 = translate(position, vec2(150.0, 0.0));
+	vec2 position2 = translate(position, vec2(300.0, 300.0));
 	float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
 	return rectangle;
 }
@@ -327,7 +322,6 @@ float figure_part_1(vec2 position) {
 
 let fragmentShader = fragmentShaderHeader + figureDescription + fragmentShaderColorFigure + fragmentShaderEnding 
 
-console.log(fragmentShader)
 
 let extensions = {
 	derivatives: true
@@ -337,17 +331,41 @@ let material = new THREE.ShaderMaterial({vertexShader,fragmentShader,extensions}
 
 let mesh = new THREE.Mesh(geometry, material)
 
+let figurePart = `
+float figure_part_`
+
 let figureNumber = 1
 
+let figureDescriptionEnding = `(vec2 position) {
+float circle = distanceToCircle(position, 150.0);
+float rectangle = figure_part_1(position);
+float sub = subtract(rectangle, circle);
+return sub;
+}
+`
+
 function getCursorPosition(canvas, event) {
+	let rect = canvas.getBoundingClientRect()
+    let x = event.clientX - rect.left
+    let y = 600.0 - (event.clientY - rect.top)
+	console.log("x: " + x + " y: " + y)
+	
 	figureNumber = figureNumber + 1
 	let figureDescription2 = `
 	float figure_part_${figureNumber}(vec2 position) {
-		float circle = distanceToCircle(position, 150.0);
-		float rectangle = figure_part_1(position);
-		float sub = subtract(rectangle, circle);
+		vec2 position2 = translate(position,vec2(${x},${y}));
+		float circle = distanceToCircle(position2, 50.0);
+		float old = figure_part_${figureNumber-1}(position);
+		float sub = subtract(old, circle);
 		return sub;
-	}
+	}`
+	let fragmentShaderColorFigure2 = `
+	vec4 colorFigure(vec2 position) {
+		float distance = figure_part_${figureNumber}(position); 
+		float alpha    = render(distance);
+		return vec4(1.0, 1.0, 1.0, alpha);
+		}
+	
 	`
 
 
@@ -355,18 +373,13 @@ function getCursorPosition(canvas, event) {
 	let fragmentShader2 = fragmentShaderHeader + figureDescription + fragmentShaderColorFigure2 + fragmentShaderEnding 
 	// let fragmentShader2 = fragmentShaderHeader + figureDescription + fragmentShaderColorFigure2 + fragmentShaderEnding
 
-	console.log(fragmentShader2)
 
 	let material2 = new THREE.ShaderMaterial({vertexShader:vertexShader,fragmentShader:fragmentShader2,extensions})
 	
 
 
 	mesh.material = material2
-    let rect = canvas.getBoundingClientRect()
-    let x = event.clientX - rect.left
-    let y = event.clientY - rect.top
-	console.log("x: " + x + " y: " + y)
-	
+   
 }
 
 canvas.addEventListener('mousedown', function(e) {
