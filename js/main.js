@@ -350,12 +350,11 @@ function getCursorPosition(canvas, event) {
     let y = 600.0 - (event.clientY - rect.top)
 	console.log("x: " + x + " y: " + y)
 	
-	console.log(selectedButtons.shape)
 	figureNumber = figureNumber + 1
 
 	let figureDescription2 = null;
 
-	if (selectedButtons.shape === "circle") {
+	if (selectedButtons.shape === "circle" && selectedButtons.operation === "subtract") {
 		figureDescription2 = `
 			float figure_part_${figureNumber}(vec2 position) {
 				vec2 position2 = translate(position,vec2(${x},${y}));
@@ -364,7 +363,7 @@ function getCursorPosition(canvas, event) {
 				float sub = subtract(old, circle);
 				return sub;
 			}`
-    } else if (selectedButtons.shape === "rectangle") { 
+    } else if (selectedButtons.shape === "rectangle" && selectedButtons.operation === "subtract") { 
 		figureDescription2 = `
 			float figure_part_${figureNumber}(vec2 position) {
 				vec2 position2 = translate(position,vec2(${x},${y}));
@@ -373,11 +372,35 @@ function getCursorPosition(canvas, event) {
 				float sub = subtract(old, rectangle);
 				return sub;
 		}`
+	} else if (selectedButtons.shape === "circle" && selectedButtons.operation === "merge") { 
+		figureDescription2 = `
+			float figure_part_${figureNumber}(vec2 position) {
+				vec2 position2 = translate(position,vec2(${x},${y}));
+				float circle = distanceToCircle(position2, 50.0);
+				float old = figure_part_${figureNumber-1}(position);
+				float min = merge(old, circle);
+				return min;
+		}`
+	} else if (selectedButtons.shape === "rectangle" && selectedButtons.operation === "merge") { 
+		figureDescription2 = `
+			float figure_part_${figureNumber}(vec2 position) {
+				vec2 position2 = translate(position,vec2(${x},${y}));
+				float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
+				float old = figure_part_${figureNumber-1}(position);
+				float min = merge(old, rectangle);
+				return min;
+		}`	
+	} else {
+		return undefined
 	}
+
+
 	let fragmentShaderColorFigure2 = `
 	vec4 colorFigure(vec2 position) {
 		float distance = figure_part_${figureNumber}(position); 
-		float alpha    = render(distance);
+		float distance_outer= grow(distance,3.0);
+		float border = subtract(distance_outer,distance);
+		float alpha    = render(border);
 		return vec4(1.0, 1.0, 1.0, alpha);
 		}
 	
