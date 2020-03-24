@@ -270,7 +270,9 @@ vec4 grid(vec2 position) {
 let fragmentShaderColorFigure = `
 vec4 colorFigure(vec2 position) {
 float distance = figure_part_1(position); 
-float alpha    = render(distance);
+float distance_outer= grow(distance,3.0);
+float border = subtract(distance_outer,distance);
+float alpha    = render(border);
 return vec4(1.0, 1.0, 1.0, alpha);
 }
 `
@@ -391,13 +393,14 @@ function getCursorPosition(canvas, event) {
 				return min;
 		}`	
 	} else {
+		figureNumber = figureNumber - 1
 		return undefined
 	}
 
 
 	let fragmentShaderColorFigure2 = `
 	vec4 colorFigure(vec2 position) {
-		float distance = figure_part_${figureNumber}(position); 
+		float distance = figure_part_${figureNumber}(position);
 		float distance_outer= grow(distance,3.0);
 		float border = subtract(distance_outer,distance);
 		float alpha    = render(border);
