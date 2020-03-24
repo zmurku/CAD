@@ -347,6 +347,16 @@ return sub;
 `
 
 function getCursorPosition(canvas, event) {
+	let shape     = selectedButtons.shape
+	let operation = selectedButtons.operation
+
+	let invalidInput = !shape || !operation
+	if(invalidInput) return
+
+	// if(shape === null || shape === undefined || operation === null || operation === undefined) {
+	// 	return
+	// }
+
 	let rect = canvas.getBoundingClientRect()
     let x = event.clientX - rect.left
     let y = 600.0 - (event.clientY - rect.top)
@@ -356,45 +366,24 @@ function getCursorPosition(canvas, event) {
 
 	let figureDescription2 = null;
 
-	if (selectedButtons.shape === "circle" && selectedButtons.operation === "subtract") {
+	if (shape === "circle") {
 		figureDescription2 = `
 			float figure_part_${figureNumber}(vec2 position) {
 				vec2 position2 = translate(position,vec2(${x},${y}));
 				float circle = distanceToCircle(position2, 50.0);
 				float old = figure_part_${figureNumber-1}(position);
-				float sub = subtract(old, circle);
+				float sub = ${operation}(old, circle);
 				return sub;
 			}`
-    } else if (selectedButtons.shape === "rectangle" && selectedButtons.operation === "subtract") { 
+    } else if (shape === "rectangle") { 
 		figureDescription2 = `
 			float figure_part_${figureNumber}(vec2 position) {
 				vec2 position2 = translate(position,vec2(${x},${y}));
 				float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
 				float old = figure_part_${figureNumber-1}(position);
-				float sub = subtract(old, rectangle);
+				float sub = ${operation}(old, rectangle);
 				return sub;
 		}`
-	} else if (selectedButtons.shape === "circle" && selectedButtons.operation === "merge") { 
-		figureDescription2 = `
-			float figure_part_${figureNumber}(vec2 position) {
-				vec2 position2 = translate(position,vec2(${x},${y}));
-				float circle = distanceToCircle(position2, 50.0);
-				float old = figure_part_${figureNumber-1}(position);
-				float min = merge(old, circle);
-				return min;
-		}`
-	} else if (selectedButtons.shape === "rectangle" && selectedButtons.operation === "merge") { 
-		figureDescription2 = `
-			float figure_part_${figureNumber}(vec2 position) {
-				vec2 position2 = translate(position,vec2(${x},${y}));
-				float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
-				float old = figure_part_${figureNumber-1}(position);
-				float min = merge(old, rectangle);
-				return min;
-		}`	
-	} else {
-		figureNumber = figureNumber - 1
-		return undefined
 	}
 
 
