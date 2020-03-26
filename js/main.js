@@ -346,7 +346,8 @@ return sub;
 }
 `
 
-function getCursorPosition(canvas, event) {
+
+function addNewOperation(canvas, event) {
 	let shape     = selectedButtons.shape
 	let operation = selectedButtons.operation
 
@@ -360,11 +361,12 @@ function getCursorPosition(canvas, event) {
 	let rect = canvas.getBoundingClientRect()
     let x = event.clientX - rect.left
     let y = 600.0 - (event.clientY - rect.top)
-	console.log("x: " + x + " y: " + y)
+	// console.log("x: " + x + " y: " + y)
 	
 	figureNumber = figureNumber + 1
 
 	let figureDescription2 = null;
+
 
 	if (shape === "circle") {
 		figureDescription2 = `
@@ -412,9 +414,32 @@ function getCursorPosition(canvas, event) {
    
 }
 
-canvas.addEventListener('mousedown', function(e) {
-    getCursorPosition(canvas, e)
+canvas.addEventListener('click', function(e) {
+    addNewOperation(canvas, e)
 })
+
+let mouseIsDown = false
+let mouseClickPositionX = 0
+let mouseClickPositionY = 0
+
+canvas.addEventListener('mousedown', function(e) {
+	mouseClickPositionX = e.offsetX
+	mouseClickPositionY = e.offsetY
+	mouseIsDown = true
+})
+
+canvas.addEventListener('mouseup', function(e) {
+	mouseIsDown = false
+})
+
+canvas.addEventListener('mousemove', function(e) {
+    if(mouseIsDown) {
+	    let distanceX = mouseClickPositionX - e.offsetX
+		let distanceY = mouseClickPositionY - e.offsetY
+		console.log(Math.sqrt(distanceX*distanceX + distanceY*distanceY))
+	}
+})
+
 
 scene.add(mesh)
 
@@ -424,4 +449,7 @@ function render() {
 }
 
 window.requestAnimationFrame(render)
+
+// po kliknięciu myszką i przeciągnięciu kliknięcia mam wypisywać odległość od pierwszego punktu 
+// zapamiętać pierwszą pozycję i odejmować od niej ostatnią 
 
