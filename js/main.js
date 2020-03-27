@@ -85,6 +85,12 @@ buttonPanel_2.appendChild(buttonMerge.domElement)
 buttonPanel_2.appendChild(buttonSubtract.domElement)
 buttonPanel_2.appendChild(buttonIntersect.domElement)
 
+let buttonKeep     = new Button("keep","keeper")
+let buttonDontKeep  = new Button("dont_keep","keeper")
+
+buttonPanel_2.appendChild(buttonKeep.domElement)
+buttonPanel_2.appendChild(buttonDontKeep.domElement)
+
 let fieldOfViewDegrees = 45 
 let aspectRatio        = window.innerWidth / window.innerHeight
 let nearClippingPlane  = 1
@@ -345,11 +351,13 @@ float sub = subtract(rectangle, circle);
 return sub;
 }
 `
-
+let keepFigureDescription2 = null
+let keepOld = null
 
 function addNewOperation(canvas, event) {
 	let shape     = selectedButtons.shape
 	let operation = selectedButtons.operation
+	let keeper      = selectedButtons.keeper
 
 	let invalidInput = !shape || !operation
 	if(invalidInput) return
@@ -365,27 +373,46 @@ function addNewOperation(canvas, event) {
 	
 	figureNumber = figureNumber + 1
 
-	let figureDescription2 = null;
-
-
-	if (shape === "circle") {
+	if(shape === "circle" && keeper === "keep") { 
 		figureDescription2 = `
 			float figure_part_${figureNumber}(vec2 position) {
+			vec2 position2 = translate(position,vec2(${x},${y}));
+			float circle = distanceToCircle(position2, 50.0);
+			float old = figure_part_${figureNumber-1}(position);
+			float sub = ${operation}(old, circle);
+			return sub;
+	}`
+		keepOld = `figure_part_${figureNumber}(position);`
+
+	} else if(shape === "circle" && keeper === "dont_keep") {
+		figureDescription2 = `
+				float figure_part_${figureNumber}(vec2 position) {
 				vec2 position2 = translate(position,vec2(${x},${y}));
 				float circle = distanceToCircle(position2, 50.0);
-				float old = figure_part_${figureNumber-1}(position);
+				float old = ${keepOld};
 				float sub = ${operation}(old, circle);
 				return sub;
-			}`
-    } else if (shape === "rectangle") { 
+			}`	
+	} else if(shape === "rectangle" && keeper === "keep") { 
 		figureDescription2 = `
 			float figure_part_${figureNumber}(vec2 position) {
+			vec2 position2 = translate(position,vec2(${x},${y}));
+			float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
+			float old = figure_part_${figureNumber-1}(position);
+			float sub = ${operation}(old, rectangle);
+			return sub;
+		}`		
+		keepOld = `figure_part_${figureNumber}(position);`
+
+    } else if(shape === "rectangle" && keeper === "dont_keep") {
+		figureDescription2 = `
+				float figure_part_${figureNumber}(vec2 position) {
 				vec2 position2 = translate(position,vec2(${x},${y}));
 				float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
-				float old = figure_part_${figureNumber-1}(position);
+				float old = ${keepOld};
 				float sub = ${operation}(old, rectangle);
 				return sub;
-		}`
+			}`				
 	}
 
 
@@ -418,27 +445,27 @@ canvas.addEventListener('click', function(e) {
     addNewOperation(canvas, e)
 })
 
-let mouseIsDown = false
-let mouseClickPositionX = 0
-let mouseClickPositionY = 0
+// let mouseIsDown = false
+// let mouseClickPositionX = 0
+// let mouseClickPositionY = 0
 
-canvas.addEventListener('mousedown', function(e) {
-	mouseClickPositionX = e.offsetX
-	mouseClickPositionY = e.offsetY
-	mouseIsDown = true
-})
+// canvas.addEventListener('mousedown', function(e) {
+// 	mouseClickPositionX = e.offsetX
+// 	mouseClickPositionY = e.offsetY
+// 	mouseIsDown = true
+// })
 
-canvas.addEventListener('mouseup', function(e) {
-	mouseIsDown = false
-})
+// canvas.addEventListener('mouseup', function(e) {
+// 	mouseIsDown = false
+// })
 
-canvas.addEventListener('mousemove', function(e) {
-    if(mouseIsDown) {
-	    let distanceX = mouseClickPositionX - e.offsetX
-		let distanceY = mouseClickPositionY - e.offsetY
-		console.log(Math.sqrt(distanceX*distanceX + distanceY*distanceY))
-	}
-})
+// canvas.addEventListener('mousemove', function(e) {
+//     if(mouseIsDown) {
+// 	    let distanceX = mouseClickPositionX - e.offsetX
+// 		let distanceY = mouseClickPositionY - e.offsetY
+// 		//console.log(Math.sqrt(distanceX*distanceX + distanceY*distanceY))
+// 	}
+// })
 
 
 scene.add(mesh)
@@ -450,6 +477,4 @@ function render() {
 
 window.requestAnimationFrame(render)
 
-// po kliknięciu myszką i przeciągnięciu kliknięcia mam wypisywać odległość od pierwszego punktu 
-// zapamiętać pierwszą pozycję i odejmować od niej ostatnią 
-
+// funkcja, która rysuje figury ma być parametryzowana promieniem
