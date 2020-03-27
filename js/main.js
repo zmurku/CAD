@@ -354,10 +354,11 @@ return sub;
 let keepFigureDescription2 = null
 let keepOld = null
 
-function addNewOperation(canvas, event) {
+function addNewOperation(canvas, event, size) {
 	let shape     = selectedButtons.shape
 	let operation = selectedButtons.operation
 	let keeper      = selectedButtons.keeper
+	
 
 	let invalidInput = !shape || !operation
 	if(invalidInput) return
@@ -372,12 +373,13 @@ function addNewOperation(canvas, event) {
 	// console.log("x: " + x + " y: " + y)
 	
 	figureNumber = figureNumber + 1
+	size = "20.0"
 
 	if(shape === "circle" && keeper === "keep") { 
 		figureDescription2 = `
 			float figure_part_${figureNumber}(vec2 position) {
 			vec2 position2 = translate(position,vec2(${x},${y}));
-			float circle = distanceToCircle(position2, 50.0);
+			float circle = distanceToCircle(position2, ${size});
 			float old = figure_part_${figureNumber-1}(position);
 			float sub = ${operation}(old, circle);
 			return sub;
@@ -388,7 +390,7 @@ function addNewOperation(canvas, event) {
 		figureDescription2 = `
 				float figure_part_${figureNumber}(vec2 position) {
 				vec2 position2 = translate(position,vec2(${x},${y}));
-				float circle = distanceToCircle(position2, 50.0);
+				float circle = distanceToCircle(position2, ${size});
 				float old = ${keepOld};
 				float sub = ${operation}(old, circle);
 				return sub;
@@ -397,7 +399,7 @@ function addNewOperation(canvas, event) {
 		figureDescription2 = `
 			float figure_part_${figureNumber}(vec2 position) {
 			vec2 position2 = translate(position,vec2(${x},${y}));
-			float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
+			float rectangle = distanceToRectangle(position2, vec2(${size}, ${size}));
 			float old = figure_part_${figureNumber-1}(position);
 			float sub = ${operation}(old, rectangle);
 			return sub;
@@ -408,7 +410,7 @@ function addNewOperation(canvas, event) {
 		figureDescription2 = `
 				float figure_part_${figureNumber}(vec2 position) {
 				vec2 position2 = translate(position,vec2(${x},${y}));
-				float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
+				float rectangle = distanceToRectangle(position2, vec2(${size}, ${size}));
 				float old = ${keepOld};
 				float sub = ${operation}(old, rectangle);
 				return sub;
@@ -442,7 +444,7 @@ function addNewOperation(canvas, event) {
 }
 
 canvas.addEventListener('click', function(e) {
-    addNewOperation(canvas, e)
+    addNewOperation(canvas, e, 10)
 })
 
 // let mouseIsDown = false
