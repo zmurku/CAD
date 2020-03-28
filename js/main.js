@@ -353,13 +353,52 @@ return sub;
 `
 let keepFigureDescription2 = null
 let keepOld = null
+let dont_keep = null
+let mouseIsDown = false
+let mouseClickPositionX = 0
+let mouseClickPositionY = 0
+let clickDistance = 0
 
+
+function formatNumber(num) {
+	if(num%1 === 0){
+		return num+".0"
+	} else {
+		return num.toString()
+	}	
+}
+
+canvas.addEventListener('click', function(e) {
+	addNewOperation(canvas, e, 10)
+})
+
+canvas.addEventListener('mousedown', function(e) {
+	mouseClickPositionX = e.offsetX
+	mouseClickPositionY = e.offsetY
+	mouseIsDown = true
+})
+
+canvas.addEventListener('mouseup', function(e) {
+	mouseIsDown = false
+})
+
+
+canvas.addEventListener('mousemove', function(e) {
+    if(mouseIsDown) {
+	    let distanceX = mouseClickPositionX - e.offsetX
+		let distanceY = mouseClickPositionY - e.offsetY
+		let distanceXY = (Math.sqrt(distanceX*distanceX + distanceY*distanceY))
+		clickDistance = distanceXY 
+	}
+})
+
+console.log(clickDistance)
+	
 function addNewOperation(canvas, event, size) {
 	let shape     = selectedButtons.shape
 	let operation = selectedButtons.operation
 	let keeper      = selectedButtons.keeper
 	
-
 	let invalidInput = !shape || !operation
 	if(invalidInput) return
 
@@ -369,11 +408,21 @@ function addNewOperation(canvas, event, size) {
 
 	let rect = canvas.getBoundingClientRect()
     let x = event.clientX - rect.left
-    let y = 600.0 - (event.clientY - rect.top)
+	let y = 600.0 - (event.clientY - rect.top)
+
 	// console.log("x: " + x + " y: " + y)
-	
 	figureNumber = figureNumber + 1
-	size = "20.0"
+
+	newSize = clickDistance
+
+	if(newSize !== 0) {
+		size = newSize
+		x = mouseClickPositionX 
+		y = 600 - mouseClickPositionY
+		
+	}
+
+	size = formatNumber(newSize)
 
 	if(shape === "circle" && keeper === "keep") { 
 		figureDescription2 = `
@@ -443,32 +492,6 @@ function addNewOperation(canvas, event, size) {
    
 }
 
-canvas.addEventListener('click', function(e) {
-    addNewOperation(canvas, e, 10)
-})
-
-// let mouseIsDown = false
-// let mouseClickPositionX = 0
-// let mouseClickPositionY = 0
-
-// canvas.addEventListener('mousedown', function(e) {
-// 	mouseClickPositionX = e.offsetX
-// 	mouseClickPositionY = e.offsetY
-// 	mouseIsDown = true
-// })
-
-// canvas.addEventListener('mouseup', function(e) {
-// 	mouseIsDown = false
-// })
-
-// canvas.addEventListener('mousemove', function(e) {
-//     if(mouseIsDown) {
-// 	    let distanceX = mouseClickPositionX - e.offsetX
-// 		let distanceY = mouseClickPositionY - e.offsetY
-// 		//console.log(Math.sqrt(distanceX*distanceX + distanceY*distanceY))
-// 	}
-// })
-
 
 scene.add(mesh)
 
@@ -479,4 +502,5 @@ function render() {
 
 window.requestAnimationFrame(render)
 
-// funkcja, która rysuje figury ma być parametryzowana promieniem
+// dodaje kółko w trybie don't keep przy wciśniętym klawiszu, ono rośnie, a gdy go puszczę kółko
+// dodaje się w trybie keep 
