@@ -85,11 +85,6 @@ buttonPanel_2.appendChild(buttonMerge.domElement)
 buttonPanel_2.appendChild(buttonSubtract.domElement)
 buttonPanel_2.appendChild(buttonIntersect.domElement)
 
-let buttonKeep     = new Button("keep","keeper")
-let buttonDontKeep  = new Button("dont_keep","keeper")
-
-buttonPanel_2.appendChild(buttonKeep.domElement)
-buttonPanel_2.appendChild(buttonDontKeep.domElement)
 
 let fieldOfViewDegrees = 45 
 let aspectRatio        = window.innerWidth / window.innerHeight
@@ -369,7 +364,7 @@ function formatNumber(num) {
 }
 
 canvas.addEventListener('click', function(e) {
-	addNewOperation(canvas, e, 10)
+	addNewOperation(canvas, e, 10, true)
 })
 
 canvas.addEventListener('mousedown', function(e) {
@@ -389,15 +384,15 @@ canvas.addEventListener('mousemove', function(e) {
 		let distanceY = mouseClickPositionY - e.offsetY
 		let distanceXY = (Math.sqrt(distanceX*distanceX + distanceY*distanceY))
 		clickDistance = distanceXY 
+		addNewOperation(canvas, e, 10, false)
 	}
 })
 
 console.log(clickDistance)
 	
-function addNewOperation(canvas, event, size) {
+function addNewOperation(canvas, event, size, doKeep) {
 	let shape     = selectedButtons.shape
 	let operation = selectedButtons.operation
-	let keeper      = selectedButtons.keeper
 	
 	let invalidInput = !shape || !operation
 	if(invalidInput) return
@@ -414,17 +409,13 @@ function addNewOperation(canvas, event, size) {
 	figureNumber = figureNumber + 1
 
 	newSize = clickDistance
-
-	if(newSize !== 0) {
-		size = newSize
-		x = mouseClickPositionX 
-		y = 600 - mouseClickPositionY
-		
-	}
+	size = newSize
+	x = mouseClickPositionX 
+	y = 600 - mouseClickPositionY
 
 	size = formatNumber(newSize)
 
-	if(shape === "circle" && keeper === "keep") { 
+	if(shape === "circle" && doKeep) { 
 		figureDescription2 = `
 			float figure_part_${figureNumber}(vec2 position) {
 			vec2 position2 = translate(position,vec2(${x},${y}));
@@ -435,7 +426,7 @@ function addNewOperation(canvas, event, size) {
 	}`
 		keepOld = `figure_part_${figureNumber}(position);`
 
-	} else if(shape === "circle" && keeper === "dont_keep") {
+	} else if(shape === "circle" && !doKeep) {
 		figureDescription2 = `
 				float figure_part_${figureNumber}(vec2 position) {
 				vec2 position2 = translate(position,vec2(${x},${y}));
@@ -444,7 +435,7 @@ function addNewOperation(canvas, event, size) {
 				float sub = ${operation}(old, circle);
 				return sub;
 			}`	
-	} else if(shape === "rectangle" && keeper === "keep") { 
+	} else if(shape === "rectangle" && doKeep) { 
 		figureDescription2 = `
 			float figure_part_${figureNumber}(vec2 position) {
 			vec2 position2 = translate(position,vec2(${x},${y}));
@@ -455,7 +446,7 @@ function addNewOperation(canvas, event, size) {
 		}`		
 		keepOld = `figure_part_${figureNumber}(position);`
 
-    } else if(shape === "rectangle" && keeper === "dont_keep") {
+    } else if(shape === "rectangle" && !doKeep) {
 		figureDescription2 = `
 				float figure_part_${figureNumber}(vec2 position) {
 				vec2 position2 = translate(position,vec2(${x},${y}));
