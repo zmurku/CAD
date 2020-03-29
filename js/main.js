@@ -347,7 +347,7 @@ return sub;
 }
 `
 let keepFigureDescription2 = null
-let keepOld = null
+let keepOld = `figure_part_${figureNumber}(position)`
 let dont_keep = null
 let mouseIsDown = false
 let mouseClickPositionX = 0
