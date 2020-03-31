@@ -3,10 +3,11 @@ let width  = 600;
 let height = 600;
 let renderer = new THREE.WebGLRenderer()
 renderer.setSize(width,height)
-let canvas = document.getElementById('root')
+let canvas = document.getElementById('viewport')
 canvas.appendChild(renderer.domElement)
 let buttonPanel = document.getElementById('button-panel')
 let buttonPanel_2 = document.getElementById('button-panel-2')
+let historyButtonPanel = document.getElementById('history-button-panel')
 
 
 // po kliknięciu  w jakieś miejsce na canvasie ma się wyświetlić info o:
@@ -84,6 +85,26 @@ let buttonIntersect = new Button("intersect","operation")
 buttonPanel_2.appendChild(buttonMerge.domElement)
 buttonPanel_2.appendChild(buttonSubtract.domElement)
 buttonPanel_2.appendChild(buttonIntersect.domElement)
+
+
+// let historyButton2     = new Button("operation 2","history")
+// let historyButton3     = new Button("operation 3","history")
+// let historyButton4     = new Button("operation 4","history")
+// let historyButton5     = new Button("operation 5","history")
+// let historyButton6     = new Button("operation 6","history")
+// let historyButton7     = new Button("operation 7","history")
+// let historyButton8     = new Button("operation 8","history")
+// let historyButton9     = new Button("operation 9","history")
+
+// 
+// historyButtonPanel.appendChild(historyButton2.domElement)
+// historyButtonPanel.appendChild(historyButton3.domElement)
+// historyButtonPanel.appendChild(historyButton4.domElement)
+// historyButtonPanel.appendChild(historyButton5.domElement)
+// historyButtonPanel.appendChild(historyButton6.domElement)
+// historyButtonPanel.appendChild(historyButton7.domElement)
+// historyButtonPanel.appendChild(historyButton8.domElement)
+// historyButtonPanel.appendChild(historyButton9.domElement)
 
 
 let fieldOfViewDegrees = 45 
@@ -353,6 +374,9 @@ let mouseIsDown = false
 let mouseClickPositionX = 0
 let mouseClickPositionY = 0
 let clickDistance = 0
+let ifClick = false
+
+let number = 1
 
 
 function formatNumber(num) {
@@ -362,9 +386,16 @@ function formatNumber(num) {
 		return num.toString()
 	}	
 }
+let n = 0
+let operationNumber = n + 1 
 
 canvas.addEventListener('click', function(e) {
 	addNewOperation(canvas, e, 10, true)
+	if(ifClick === true) {
+	historyButton = new Button("operation " + operationNumber,"history")
+	historyButtonPanel.appendChild(historyButton.domElement)
+	operationNumber = operationNumber + 1
+	}
 })
 
 canvas.addEventListener('mousedown', function(e) {
@@ -425,6 +456,7 @@ function addNewOperation(canvas, event, size, doKeep) {
 			return sub;
 	}`
 		keepOld = `figure_part_${figureNumber}(position);`
+		ifClick = true
 
 	} else if(shape === "circle" && !doKeep) {
 		figureDescription2 = `
@@ -445,6 +477,7 @@ function addNewOperation(canvas, event, size, doKeep) {
 			return sub;
 		}`		
 		keepOld = `figure_part_${figureNumber}(position);`
+		ifClick = true
 
     } else if(shape === "rectangle" && !doKeep) {
 		figureDescription2 = `
