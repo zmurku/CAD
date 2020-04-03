@@ -8,7 +8,11 @@ canvas.appendChild(renderer.domElement)
 let buttonPanel = document.getElementById('button-panel')
 let buttonPanel_2 = document.getElementById('button-panel-2')
 let historyButtonPanel = document.getElementById('history-button-panel')
-
+let mouseIsDown = false
+let mouseIsUp = false
+let lastOperation = true
+let distX = 0
+let distY = 0
 
 // po kliknięciu  w jakieś miejsce na canvasie ma się wyświetlić info o:
 // położeniu i wciśniętych przysiskach
@@ -22,6 +26,7 @@ function updateButtons() {
     for(let buttonName in buttons) {
 		let button = buttons[buttonName]
 		button.domElement.style.setProperty("background-color", "#888888")
+
 
 		let doHighlight = false 
         for(let groupName in selectedButtons) {
@@ -40,6 +45,7 @@ class Button {
 	constructor(name,groupName) {
 		this.name      = name
 		this.groupName = groupName
+		console.log(groupName)
         buttons[name]  = this
 		let divElement = document.createElement("div")
 		divElement.id  = this.name
@@ -49,30 +55,45 @@ class Button {
 		divElement.style.setProperty("height", "64px")
 		divElement.style.setProperty("display", "inline-block")
 
+
 		divElement.addEventListener("mouseover", () => {
-			if(selectedButtons[groupName] !== this.name) {
-				divElement.style.setProperty("background-color", "#C0C0C0")	
-			}
+			this.over()
 		})
 
 		divElement.addEventListener("mouseout", () => {
-			if(selectedButtons[groupName] !== this.name){
-				divElement.style.setProperty("background-color", "#888888")
-			}
+			this.out()
 		})
 
-		divElement.addEventListener("mousedown", function() {
-			selectedButtons[groupName] = name
-			updateButtons()
+		divElement.addEventListener("mousedown", () => {
+			this.press()
 		})
 		
 		this.domElement = divElement
 	}
+
+	press() {
+        selectedButtons[this.groupName] = this.name
+		updateButtons()
+	}
+
+	over() {
+        if(selectedButtons[this.groupName] !== this.name) {
+			this.domElement.style.setProperty("background-color", "#C0C0C0")	
+		}
+	}
+
+	out() {
+        if(selectedButtons[this.groupName] !== this.name){
+			this.domElement.style.setProperty("background-color", "#888888")
+		}
+	}
+
 }
 
 let buttonCircle    = new Button("circle","shape")
 let buttonRectangle = new Button("rectangle","shape")
 let buttonTriangle  = new Button("triangle","shape")
+
 
 buttonPanel.appendChild(buttonCircle.domElement)
 buttonPanel.appendChild(buttonRectangle.domElement)
@@ -85,27 +106,6 @@ let buttonIntersect = new Button("intersect","operation")
 buttonPanel_2.appendChild(buttonMerge.domElement)
 buttonPanel_2.appendChild(buttonSubtract.domElement)
 buttonPanel_2.appendChild(buttonIntersect.domElement)
-
-
-// let historyButton2     = new Button("operation 2","history")
-// let historyButton3     = new Button("operation 3","history")
-// let historyButton4     = new Button("operation 4","history")
-// let historyButton5     = new Button("operation 5","history")
-// let historyButton6     = new Button("operation 6","history")
-// let historyButton7     = new Button("operation 7","history")
-// let historyButton8     = new Button("operation 8","history")
-// let historyButton9     = new Button("operation 9","history")
-
-// 
-// historyButtonPanel.appendChild(historyButton2.domElement)
-// historyButtonPanel.appendChild(historyButton3.domElement)
-// historyButtonPanel.appendChild(historyButton4.domElement)
-// historyButtonPanel.appendChild(historyButton5.domElement)
-// historyButtonPanel.appendChild(historyButton6.domElement)
-// historyButtonPanel.appendChild(historyButton7.domElement)
-// historyButtonPanel.appendChild(historyButton8.domElement)
-// historyButtonPanel.appendChild(historyButton9.domElement)
-
 
 let fieldOfViewDegrees = 45 
 let aspectRatio        = window.innerWidth / window.innerHeight
@@ -370,11 +370,11 @@ return sub;
 let keepFigureDescription2 = null
 let keepOld = `figure_part_${figureNumber}(position)`
 let dont_keep = null
-let mouseIsDown = false
 let mouseClickPositionX = 0
 let mouseClickPositionY = 0
 let clickDistance = 0
-let ifClick = false
+
+
 
 let number = 1
 
@@ -391,10 +391,16 @@ let operationNumber = n + 1
 
 canvas.addEventListener('click', function(e) {
 	addNewOperation(canvas, e, 10, true)
-	if(ifClick === true) {
+	if(lastOperation === false) {
+		historyButton.domElement.style.setProperty("background-color", "#888888")
+	}
+	if(mouseIsUp) {
 	historyButton = new Button("operation " + operationNumber,"history")
+	historyButton.press()
 	historyButtonPanel.appendChild(historyButton.domElement)
 	operationNumber = operationNumber + 1
+	lastOperation = false
+	console.log(selectedButtons)
 	}
 })
 
@@ -408,18 +414,19 @@ canvas.addEventListener('mouseup', function(e) {
 	mouseIsDown = false
 })
 
-
 canvas.addEventListener('mousemove', function(e) {
     if(mouseIsDown) {
-	    let distanceX = mouseClickPositionX - e.offsetX
+		let distanceX = mouseClickPositionX - e.offsetX
+		distX = distanceX
 		let distanceY = mouseClickPositionY - e.offsetY
+		distY = distanceY
 		let distanceXY = (Math.sqrt(distanceX*distanceX + distanceY*distanceY))
 		clickDistance = distanceXY 
 		addNewOperation(canvas, e, 10, false)
 	}
 })
 
-console.log(clickDistance)
+console.log(distX)
 	
 function addNewOperation(canvas, event, size, doKeep) {
 	let shape     = selectedButtons.shape
@@ -428,18 +435,24 @@ function addNewOperation(canvas, event, size, doKeep) {
 	let invalidInput = !shape || !operation
 	if(invalidInput) return
 
-	// if(shape === null || shape === undefined || operation === null || operation === undefined) {
-	// 	return
-	// }
-
 	let rect = canvas.getBoundingClientRect()
     let x = event.clientX - rect.left
 	let y = 600.0 - (event.clientY - rect.top)
 
-	// console.log("x: " + x + " y: " + y)
 	figureNumber = figureNumber + 1
 
+	let borderDistX = x - (distX/2) 
+	let borderDistY = y - (distY/2)
+	if(distX <= 0 || distY <= 0){
+		distX = Math.abs(distX)
+		distY = Math.abs(distY)
+		borderDistY = y + (distY/2)
+		borderDistX = x + (distX/2)
+	}
+	
+
 	newSize = clickDistance
+	console.log(newSize)
 	size = newSize
 	x = mouseClickPositionX 
 	y = 600 - mouseClickPositionY
@@ -454,9 +467,10 @@ function addNewOperation(canvas, event, size, doKeep) {
 			float old = figure_part_${figureNumber-1}(position);
 			float sub = ${operation}(old, circle);
 			return sub;
-	}`
+		}`
+		mouseIsUp = true
 		keepOld = `figure_part_${figureNumber}(position);`
-		ifClick = true
+		
 
 	} else if(shape === "circle" && !doKeep) {
 		figureDescription2 = `
@@ -467,23 +481,25 @@ function addNewOperation(canvas, event, size, doKeep) {
 				float sub = ${operation}(old, circle);
 				return sub;
 			}`	
+			
 	} else if(shape === "rectangle" && doKeep) { 
 		figureDescription2 = `
 			float figure_part_${figureNumber}(vec2 position) {
 			vec2 position2 = translate(position,vec2(${x},${y}));
-			float rectangle = distanceToRectangle(position2, vec2(${size}, ${size}));
+			float rectangle = distanceToRectangle(position2, vec2(${distX}, ${distY}));
 			float old = figure_part_${figureNumber-1}(position);
 			float sub = ${operation}(old, rectangle);
 			return sub;
 		}`		
+		mouseIsUp = true
 		keepOld = `figure_part_${figureNumber}(position);`
-		ifClick = true
+		
 
     } else if(shape === "rectangle" && !doKeep) {
 		figureDescription2 = `
 				float figure_part_${figureNumber}(vec2 position) {
 				vec2 position2 = translate(position,vec2(${x},${y}));
-				float rectangle = distanceToRectangle(position2, vec2(${size}, ${size}));
+				float rectangle = distanceToRectangle(position2, vec2(${distX}, ${distY}));
 				float old = ${keepOld};
 				float sub = ${operation}(old, rectangle);
 				return sub;
@@ -526,5 +542,4 @@ function render() {
 
 window.requestAnimationFrame(render)
 
-// dodaje kółko w trybie don't keep przy wciśniętym klawiszu, ono rośnie, a gdy go puszczę kółko
-// dodaje się w trybie keep 
+// zrobić prostokąt z kwadratu
