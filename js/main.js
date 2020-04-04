@@ -1,34 +1,55 @@
+'use strict'
 
-let width  = 600;
-let height = 600;
+let canvasWidth  = 900
+let canvasHeight = 900
 let renderer = new THREE.WebGLRenderer()
-renderer.setSize(width,height)
+renderer.setSize(canvasWidth,canvasHeight)
+let scene = new THREE.Scene()
+let geometry = new THREE.BufferGeometry()
+let vertices = new Float32Array([
+	-1.0, -1.0,  0.0,
+	 1.0, -1.0,  0.0,
+	 1.0,  1.0,  0.0,
+
+	 1.0,  1.0,  0.0,
+	-1.0,  1.0,  0.0,
+	-1.0, -1.0,  0.0
+])
+let itemsPerElement = 3
+geometry.setAttribute('position', new THREE.BufferAttribute(vertices,itemsPerElement))
+geometry.dynamic = true
 let canvas = document.getElementById('viewport')
 canvas.appendChild(renderer.domElement)
-let buttonPanel = document.getElementById('button-panel')
-let buttonPanel_2 = document.getElementById('button-panel-2')
+let shapesPanel = document.getElementById('button-panel') 
+let operationsPanel = document.getElementById('button-panel-2') 
 let historyButtonPanel = document.getElementById('history-button-panel')
-let mouseIsDown = false
-let mouseIsUp = false
-let lastOperation = true
-let distX = 0
-let distY = 0
+let fieldOfViewDegrees = 45 
+let aspectRatio        = window.innerWidth / window.innerHeight
+let nearClippingPlane  = 1
+let farClippingPlane   = 500
+let camera = new THREE.PerspectiveCamera(fieldOfViewDegrees, aspectRatio, nearClippingPlane, farClippingPlane)
+camera.position.set(0, 0, 100)
+camera.lookAt(0, 0, 0);
 
-// po kliknięciu  w jakieś miejsce na canvasie ma się wyświetlić info o:
-// położeniu i wciśniętych przysiskach
+let mouse = {
+	IsDown: false,
+	DistX: 0,
+	DistY: 0
+}
 
-buttons = {}
+
+// ===============
+// === Buttons ===
+// ===============
+
+let buttons = {}
 let selectedButtons = {}
-
-
-
 function updateButtons() {
     for(let buttonName in buttons) {
 		let button = buttons[buttonName]
 		button.domElement.style.setProperty("background-color", "#888888")
-
-
 		let doHighlight = false 
+
         for(let groupName in selectedButtons) {
 			if(selectedButtons[groupName] === buttonName) {
 				doHighlight = true
@@ -45,7 +66,6 @@ class Button {
 	constructor(name,groupName) {
 		this.name      = name
 		this.groupName = groupName
-		console.log(groupName)
         buttons[name]  = this
 		let divElement = document.createElement("div")
 		divElement.id  = this.name
@@ -54,7 +74,6 @@ class Button {
 		divElement.style.setProperty("width", "100px")
 		divElement.style.setProperty("height", "64px")
 		divElement.style.setProperty("display", "inline-block")
-
 
 		divElement.addEventListener("mouseover", () => {
 			this.over()
@@ -87,54 +106,28 @@ class Button {
 			this.domElement.style.setProperty("background-color", "#888888")
 		}
 	}
-
 }
+
+// ===================
+// === new Buttons ===
+// ===================
 
 let buttonCircle    = new Button("circle","shape")
 let buttonRectangle = new Button("rectangle","shape")
 let buttonTriangle  = new Button("triangle","shape")
 
-
-buttonPanel.appendChild(buttonCircle.domElement)
-buttonPanel.appendChild(buttonRectangle.domElement)
-buttonPanel.appendChild(buttonTriangle.domElement)
+shapesPanel.appendChild(buttonCircle.domElement)
+shapesPanel.appendChild(buttonRectangle.domElement)
+shapesPanel.appendChild(buttonTriangle.domElement)
 
 let buttonMerge     = new Button("merge","operation")
 let buttonSubtract  = new Button("subtract","operation")
 let buttonIntersect = new Button("intersect","operation")
 
-buttonPanel_2.appendChild(buttonMerge.domElement)
-buttonPanel_2.appendChild(buttonSubtract.domElement)
-buttonPanel_2.appendChild(buttonIntersect.domElement)
+operationsPanel.appendChild(buttonMerge.domElement)
+operationsPanel.appendChild(buttonSubtract.domElement)
+operationsPanel.appendChild(buttonIntersect.domElement)
 
-let fieldOfViewDegrees = 45 
-let aspectRatio        = window.innerWidth / window.innerHeight
-let nearClippingPlane  = 1
-let farClippingPlane   = 500
-let camera = new THREE.PerspectiveCamera(fieldOfViewDegrees, aspectRatio, nearClippingPlane, farClippingPlane)
-
-
-camera.position.set(0, 0, 100)
-camera.lookAt(0, 0, 0);
-
-let scene = new THREE.Scene()
-
-let geometry = new THREE.BufferGeometry()
-
-let vertices = new Float32Array([
-	-1.0, -1.0,  0.0,
-	 1.0, -1.0,  0.0,
-	 1.0,  1.0,  0.0,
-
-	 1.0,  1.0,  0.0,
-	-1.0,  1.0,  0.0,
-	-1.0, -1.0,  0.0
-])
-
-let itemsPerElement = 3
-geometry.setAttribute('position', new THREE.BufferAttribute(vertices,itemsPerElement))
-
-geometry.dynamic = true
 
 let vertexShader = `
 varying vec2 currentPixelPosition;
@@ -142,7 +135,7 @@ void main() {
 	vec3 position2 = position + vec3(1.0,1.0,0.0);
 	currentPixelPosition.x = position2.x / 2.0;
 	currentPixelPosition.y = position2.y / 2.0;
-	currentPixelPosition = currentPixelPosition * 600.0;
+	currentPixelPosition = currentPixelPosition * ${canvasWidth}.0;
 	// Contains the position of the current vertex.
     gl_Position = vec4(position.x,position.y,position.z,1.0); 
 }
@@ -300,7 +293,7 @@ return vec4(1.0, 1.0, 1.0, alpha);
 `
 let fragmentShaderEnding = `
 float background(vec2 position) {
-	float rectangle = distanceToRectangle(position, vec2(600.0, 600.0));
+	float rectangle = distanceToRectangle(position, vec2(${canvasWidth}.0, ${canvasHeight}.0));
 	return rectangle;
 }
 
@@ -338,46 +331,29 @@ void main() {
 `
 let figureDescription = `
 float figure_part_1(vec2 position) {
-	vec2 position2 = translate(position, vec2(300.0, 300.0));
+	vec2 position2 = translate(position, vec2(${canvasWidth/2}.0, ${canvasHeight/2}.0));
 	float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
 	return rectangle;
 }
 `
 
-let fragmentShader = fragmentShaderHeader + figureDescription + fragmentShaderColorFigure + fragmentShaderEnding 
-
+let fragmentShader = fragmentShaderHeader + figureDescription + fragmentShaderColorFigure + 
+    fragmentShaderEnding 
 
 let extensions = {
 	derivatives: true
 }
 
-let material = new THREE.ShaderMaterial({vertexShader,fragmentShader,extensions})
+// TODO znowu rzeczythree js wezze je w jedno miejsce -- TO MIEJSCE JEST DOBRE
 
+let material = new THREE.ShaderMaterial({vertexShader,fragmentShader,extensions})
 let mesh = new THREE.Mesh(geometry, material)
 
-let figurePart = `
-float figure_part_`
-
-let figureNumber = 1
-
-let figureDescriptionEnding = `(vec2 position) {
-float circle = distanceToCircle(position, 150.0);
-float rectangle = figure_part_1(position);
-float sub = subtract(rectangle, circle);
-return sub;
-}
-`
-let keepFigureDescription2 = null
-let keepOld = `figure_part_${figureNumber}(position)`
-let dont_keep = null
+let whichFigure = 1
+let lastFigure = `figure_part_${whichFigure}(position)` 
 let mouseClickPositionX = 0
 let mouseClickPositionY = 0
 let clickDistance = 0
-
-
-
-let number = 1
-
 
 function formatNumber(num) {
 	if(num%1 === 0){
@@ -386,130 +362,115 @@ function formatNumber(num) {
 		return num.toString()
 	}	
 }
-let n = 0
-let operationNumber = n + 1 
 
 canvas.addEventListener('click', function(e) {
-	addNewOperation(canvas, e, 10, true)
-	if(lastOperation === false) {
-		historyButton.domElement.style.setProperty("background-color", "#888888")
-	}
-	if(mouseIsUp) {
-	historyButton = new Button("operation " + operationNumber,"history")
-	historyButton.press()
-	historyButtonPanel.appendChild(historyButton.domElement)
-	operationNumber = operationNumber + 1
-	lastOperation = false
-	console.log(selectedButtons)
-	}
+	addNewOperation(10, true)
 })
 
 canvas.addEventListener('mousedown', function(e) {
 	mouseClickPositionX = e.offsetX
-	mouseClickPositionY = e.offsetY
-	mouseIsDown = true
+	mouseClickPositionY = canvasHeight - e.offsetY 
+	mouse.isDown = true
 })
 
 canvas.addEventListener('mouseup', function(e) {
-	mouseIsDown = false
+	mouse.isDown = false
 })
 
 canvas.addEventListener('mousemove', function(e) {
-    if(mouseIsDown) {
-		let distanceX = mouseClickPositionX - e.offsetX
-		distX = distanceX
-		let distanceY = mouseClickPositionY - e.offsetY
-		distY = distanceY
-		let distanceXY = (Math.sqrt(distanceX*distanceX + distanceY*distanceY))
+    if(mouse.isDown) {
+		mouse.DistX = e.offsetX - mouseClickPositionX
+		mouse.DistY = (canvasHeight - e.offsetY) - mouseClickPositionY
+		let distanceXY = (Math.sqrt(mouse.DistX*mouse.DistX + mouse.DistY*mouse.DistY))
 		clickDistance = distanceXY 
-		addNewOperation(canvas, e, 10, false)
+		addNewOperation(10, false)
 	}
 })
 
-console.log(distX)
+let operationNumber = 1 
+function addHistoryButton() {
+    let historyButton = new Button("operation " + operationNumber,"history")
+	historyButton.press()
+	historyButtonPanel.appendChild(historyButton.domElement)
+	operationNumber = operationNumber + 1
+}
 	
-function addNewOperation(canvas, event, size, doKeep) {
-	let shape     = selectedButtons.shape
-	let operation = selectedButtons.operation
-	
+function addNewOperation(size, doKeep) {
+	let shape        = selectedButtons.shape
+	let operation    = selectedButtons.operation
 	let invalidInput = !shape || !operation
 	if(invalidInput) return
-
-	let rect = canvas.getBoundingClientRect()
-    let x = event.clientX - rect.left
-	let y = 600.0 - (event.clientY - rect.top)
-
-	figureNumber = figureNumber + 1
-
-	let borderDistX = x - (distX/2) 
-	let borderDistY = y - (distY/2)
-	if(distX <= 0 || distY <= 0){
-		distX = Math.abs(distX)
-		distY = Math.abs(distY)
-		borderDistY = y + (distY/2)
-		borderDistX = x + (distX/2)
-	}
-	
-
-	newSize = clickDistance
-	console.log(newSize)
-	size = newSize
-	x = mouseClickPositionX 
-	y = 600 - mouseClickPositionY
-
-	size = formatNumber(newSize)
+	let nextFigureDesctiption = null
+    let x = mouseClickPositionX
+	let y = mouseClickPositionY
+	whichFigure += 1
+	size = formatNumber(clickDistance)
 
 	if(shape === "circle" && doKeep) { 
-		figureDescription2 = `
-			float figure_part_${figureNumber}(vec2 position) {
+		nextFigureDesctiption = `
+			float figure_part_${whichFigure}(vec2 position) {
 			vec2 position2 = translate(position,vec2(${x},${y}));
 			float circle = distanceToCircle(position2, ${size});
-			float old = figure_part_${figureNumber-1}(position);
+			float old = figure_part_${whichFigure-1}(position);
 			float sub = ${operation}(old, circle);
 			return sub;
 		}`
-		mouseIsUp = true
-		keepOld = `figure_part_${figureNumber}(position);`
+		lastFigure = `figure_part_${whichFigure}(position);`
+		addHistoryButton()
 		
-
 	} else if(shape === "circle" && !doKeep) {
-		figureDescription2 = `
-				float figure_part_${figureNumber}(vec2 position) {
+		nextFigureDesctiption = `
+				float figure_part_${whichFigure}(vec2 position) {
 				vec2 position2 = translate(position,vec2(${x},${y}));
 				float circle = distanceToCircle(position2, ${size});
-				float old = ${keepOld};
+				float old = ${lastFigure};
 				float sub = ${operation}(old, circle);
 				return sub;
 			}`	
 			
 	} else if(shape === "rectangle" && doKeep) { 
-		figureDescription2 = `
-			float figure_part_${figureNumber}(vec2 position) {
+		let width  = Math.abs(mouse.DistX)
+		let height = Math.abs(mouse.DistY)
+		let x = mouseClickPositionX + width/2
+		let y = mouseClickPositionY + height/2
+
+		if(mouse.DistY < 0) { y = y - height }
+		if(mouse.DistX < 0) { x = x - width }
+		
+		nextFigureDesctiption = `
+			float figure_part_${whichFigure}(vec2 position) {
 			vec2 position2 = translate(position,vec2(${x},${y}));
-			float rectangle = distanceToRectangle(position2, vec2(${distX}, ${distY}));
-			float old = figure_part_${figureNumber-1}(position);
+			float rectangle = distanceToRectangle(position2, vec2(${width}, ${height}));
+			float old = figure_part_${whichFigure-1}(position);
 			float sub = ${operation}(old, rectangle);
 			return sub;
 		}`		
-		mouseIsUp = true
-		keepOld = `figure_part_${figureNumber}(position);`
+		lastFigure = `figure_part_${whichFigure}(position);`
+		addHistoryButton()
 		
 
     } else if(shape === "rectangle" && !doKeep) {
-		figureDescription2 = `
-				float figure_part_${figureNumber}(vec2 position) {
+		let width  = Math.abs(mouse.DistX)
+		let height = Math.abs(mouse.DistY)
+		let x = mouseClickPositionX + width/2
+		let y = mouseClickPositionY + height/2
+
+		if(mouse.DistY < 0) { y = y - height }
+		if(mouse.DistX < 0) { x = x - width }
+		
+		nextFigureDesctiption = `
+				float figure_part_${whichFigure}(vec2 position) {
 				vec2 position2 = translate(position,vec2(${x},${y}));
-				float rectangle = distanceToRectangle(position2, vec2(${distX}, ${distY}));
-				float old = ${keepOld};
+				float rectangle = distanceToRectangle(position2, vec2(${width}, ${height}));
+				float old = ${lastFigure};
 				float sub = ${operation}(old, rectangle);
 				return sub;
 			}`				
 	}
 
-
 	let fragmentShaderColorFigure2 = `
 	vec4 colorFigure(vec2 position) {
-		float distance = figure_part_${figureNumber}(position);
+		float distance = figure_part_${whichFigure}(position);
 		float distance_outer= grow(distance,3.0);
 		float border = subtract(distance_outer,distance);
 		float alpha    = render(border);
@@ -518,20 +479,13 @@ function addNewOperation(canvas, event, size, doKeep) {
 	
 	`
 
-
-	figureDescription = figureDescription + figureDescription2
-	let fragmentShader2 = fragmentShaderHeader + figureDescription + fragmentShaderColorFigure2 + fragmentShaderEnding 
-	// let fragmentShader2 = fragmentShaderHeader + figureDescription + fragmentShaderColorFigure2 + fragmentShaderEnding
-
-
-	let material2 = new THREE.ShaderMaterial({vertexShader:vertexShader,fragmentShader:fragmentShader2,extensions})
-	
-
-
+	figureDescription = figureDescription + nextFigureDesctiption
+	let fragmentShader2 = fragmentShaderHeader + figureDescription + fragmentShaderColorFigure2 + 
+	    fragmentShaderEnding 
+	let material2 = new THREE.ShaderMaterial({vertexShader:vertexShader,
+		fragmentShader:fragmentShader2,extensions})
 	mesh.material = material2
-   
 }
-
 
 scene.add(mesh)
 
@@ -541,5 +495,3 @@ function render() {
 }
 
 window.requestAnimationFrame(render)
-
-// zrobić prostokąt z kwadratu
