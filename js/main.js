@@ -1,7 +1,13 @@
 'use strict'
 
-let canvasWidth  = 900
-let canvasHeight = 900
+
+
+// =============
+// === Scene ===
+// =============
+
+let canvasWidth  = 600
+let canvasHeight = 600
 let renderer = new THREE.WebGLRenderer()
 renderer.setSize(canvasWidth,canvasHeight)
 let scene = new THREE.Scene()
@@ -17,117 +23,26 @@ let vertices = new Float32Array([
 ])
 let itemsPerElement = 3
 geometry.setAttribute('position', new THREE.BufferAttribute(vertices,itemsPerElement))
-geometry.dynamic = true
-let canvas = document.getElementById('viewport')
+geometry.dynamic    = true
+let canvas          = document.getElementById('viewport')
 canvas.appendChild(renderer.domElement)
-let shapesPanel = document.getElementById('button-panel') 
-let operationsPanel = document.getElementById('button-panel-2') 
+let shapesPanel        = document.getElementById('button-panel')  
+let operationsPanel    = document.getElementById('button-panel-2') 
 let historyButtonPanel = document.getElementById('history-button-panel')
 let fieldOfViewDegrees = 45 
 let aspectRatio        = window.innerWidth / window.innerHeight
 let nearClippingPlane  = 1
 let farClippingPlane   = 500
-let camera = new THREE.PerspectiveCamera(fieldOfViewDegrees, aspectRatio, nearClippingPlane, farClippingPlane)
+let camera             = new THREE.PerspectiveCamera(fieldOfViewDegrees, aspectRatio, 
+	nearClippingPlane, farClippingPlane) 
 camera.position.set(0, 0, 100)
 camera.lookAt(0, 0, 0);
 
-let mouse = {
-	IsDown: false,
-	DistX: 0,
-	DistY: 0
-}
 
 
-// ===============
-// === Buttons ===
-// ===============
-
-let buttons = {}
-let selectedButtons = {}
-function updateButtons() {
-    for(let buttonName in buttons) {
-		let button = buttons[buttonName]
-		button.domElement.style.setProperty("background-color", "#888888")
-		let doHighlight = false 
-
-        for(let groupName in selectedButtons) {
-			if(selectedButtons[groupName] === buttonName) {
-				doHighlight = true
-			}
-		}
-
-		if(doHighlight) {
-			button.domElement.style.setProperty("background-color", "#003B62")
-		}
-	}
-}
-
-class Button {
-	constructor(name,groupName) {
-		this.name      = name
-		this.groupName = groupName
-        buttons[name]  = this
-		let divElement = document.createElement("div")
-		divElement.id  = this.name
-		divElement.innerText = this.name
-		divElement.style.setProperty("background-color", "#888888")
-		divElement.style.setProperty("width", "100px")
-		divElement.style.setProperty("height", "64px")
-		divElement.style.setProperty("display", "inline-block")
-
-		divElement.addEventListener("mouseover", () => {
-			this.over()
-		})
-
-		divElement.addEventListener("mouseout", () => {
-			this.out()
-		})
-
-		divElement.addEventListener("mousedown", () => {
-			this.press()
-		})
-		
-		this.domElement = divElement
-	}
-
-	press() {
-        selectedButtons[this.groupName] = this.name
-		updateButtons()
-	}
-
-	over() {
-        if(selectedButtons[this.groupName] !== this.name) {
-			this.domElement.style.setProperty("background-color", "#C0C0C0")	
-		}
-	}
-
-	out() {
-        if(selectedButtons[this.groupName] !== this.name){
-			this.domElement.style.setProperty("background-color", "#888888")
-		}
-	}
-}
-
-// ===================
-// === new Buttons ===
-// ===================
-
-let buttonCircle    = new Button("circle","shape")
-let buttonRectangle = new Button("rectangle","shape")
-let buttonTriangle  = new Button("triangle","shape")
-
-shapesPanel.appendChild(buttonCircle.domElement)
-shapesPanel.appendChild(buttonRectangle.domElement)
-shapesPanel.appendChild(buttonTriangle.domElement)
-
-let buttonMerge     = new Button("merge","operation")
-let buttonSubtract  = new Button("subtract","operation")
-let buttonIntersect = new Button("intersect","operation")
-
-operationsPanel.appendChild(buttonMerge.domElement)
-operationsPanel.appendChild(buttonSubtract.domElement)
-operationsPanel.appendChild(buttonIntersect.domElement)
-
+// ============
+// === GLSL ===
+// ============
 
 let vertexShader = `
 varying vec2 currentPixelPosition;
@@ -237,7 +152,9 @@ vec2 rotate(vec2 samplePosition, float rotation){
     float angle = rotation * PI * 2.0 * -1.0;
 	float sine = sin(angle);
 	float cosine = cos(angle);
-    return vec2(cosine * samplePosition.x + sine * samplePosition.y, cosine * samplePosition.y - sine * samplePosition.x);
+	float x      = cosine * samplePosition.x + sine * samplePosition.y;
+	float y      = cosine * samplePosition.y - sine * samplePosition.x;
+    return vec2(x,y);
 }
 
 vec2 scale(vec2 samplePosition, float scale){
@@ -338,22 +255,134 @@ float figure_part_1(vec2 position) {
 `
 
 let fragmentShader = fragmentShaderHeader + figureDescription + fragmentShaderColorFigure + 
-    fragmentShaderEnding 
+	fragmentShaderEnding 
+	
+
+
+
+ 
+// =============
+// === Mouse ===
+// =============
+
+let mouse = {
+	isDown: false,
+	distX: 0, 
+	distY: 0
+}
+
+
+// ===============
+// === Buttons ===
+// ===============
+
+let buttons = {}
+let selectedButtons = {}
+function updateButtons() {
+    for(let buttonName in buttons) {
+		let button = buttons[buttonName]
+		button.domElement.style.setProperty("background-color", "#888888")
+		let doHighlight = false 
+
+        for(let groupName in selectedButtons) {
+			if(selectedButtons[groupName] === buttonName) {
+				doHighlight = true
+			}
+		}
+
+		if(doHighlight) {
+			button.domElement.style.setProperty("background-color", "#003B62")
+		}
+	}
+}
+
+
+let pressNumber = 0
+class Button {
+	constructor(name,groupName) {
+		this.name      = name
+		this.groupName = groupName
+        buttons[name]  = this
+		let divElement = document.createElement("div")
+		divElement.id  = this.name
+		divElement.innerText = this.name
+		divElement.style.setProperty("background-color", "#888888")
+		divElement.style.setProperty("width", "100px")
+		divElement.style.setProperty("height", "64px")
+		divElement.style.setProperty("display", "inline-block")
+
+		divElement.addEventListener("mouseover", () => {
+			this.over()
+		})
+
+		divElement.addEventListener("mouseout", () => {
+			this.out()
+		})
+
+		divElement.addEventListener("mousedown", () => {
+			this.press()
+		})
+		
+		this.domElement = divElement
+	}
+
+	press() {
+		selectedButtons[this.groupName] = this.name
+		console.log(this.name)
+		updateButtons()
+	}
+
+
+	over() {
+        if(selectedButtons[this.groupName] !== this.name) {
+			this.domElement.style.setProperty("background-color", "#C0C0C0")	
+		}
+	}
+
+	out() {
+        if(selectedButtons[this.groupName] !== this.name){
+			this.domElement.style.setProperty("background-color", "#888888")
+		}
+	}
+}
+
+
+// ===================
+// === New Buttons ===
+// ===================
+
+
+let buttonCircle    = new Button("circle","shape")
+let buttonRectangle = new Button("rectangle","shape")
+let buttonTriangle  = new Button("triangle","shape")
+
+shapesPanel.appendChild(buttonCircle.domElement)
+shapesPanel.appendChild(buttonRectangle.domElement)
+shapesPanel.appendChild(buttonTriangle.domElement)
+
+let buttonMerge     = new Button("merge","operation")
+let buttonSubtract  = new Button("subtract","operation")
+let buttonIntersect = new Button("intersect","operation")
+
+operationsPanel.appendChild(buttonMerge.domElement)
+operationsPanel.appendChild(buttonSubtract.domElement)
+operationsPanel.appendChild(buttonIntersect.domElement)
+
+
 
 let extensions = {
 	derivatives: true
 }
 
-// TODO znowu rzeczythree js wezze je w jedno miejsce -- TO MIEJSCE JEST DOBRE
 
 let material = new THREE.ShaderMaterial({vertexShader,fragmentShader,extensions})
-let mesh = new THREE.Mesh(geometry, material)
+let mesh     = new THREE.Mesh(geometry, material)
 
-let whichFigure = 1
-let lastFigure = `figure_part_${whichFigure}(position)` 
+let figureCount         = 1  
+let lastFigure          = `figure_part_${figureCount}(position)`   
 let mouseClickPositionX = 0
 let mouseClickPositionY = 0
-let clickDistance = 0
+let clickDistance       = 0
 
 function formatNumber(num) {
 	if(num%1 === 0){
@@ -363,9 +392,6 @@ function formatNumber(num) {
 	}	
 }
 
-canvas.addEventListener('click', function(e) {
-	addNewOperation(10, true)
-})
 
 canvas.addEventListener('mousedown', function(e) {
 	mouseClickPositionX = e.offsetX
@@ -375,52 +401,70 @@ canvas.addEventListener('mousedown', function(e) {
 
 canvas.addEventListener('mouseup', function(e) {
 	mouse.isDown = false
+	addNewOperation(true)
 })
 
 canvas.addEventListener('mousemove', function(e) {
     if(mouse.isDown) {
-		mouse.DistX = e.offsetX - mouseClickPositionX
-		mouse.DistY = (canvasHeight - e.offsetY) - mouseClickPositionY
-		let distanceXY = (Math.sqrt(mouse.DistX*mouse.DistX + mouse.DistY*mouse.DistY))
-		clickDistance = distanceXY 
-		addNewOperation(10, false)
+		mouse.distX    = e.offsetX - mouseClickPositionX
+		mouse.distY    = (canvasHeight - e.offsetY) - mouseClickPositionY
+		let distanceXY = (Math.sqrt(mouse.distX*mouse.distX + mouse.distY*mouse.distY))
+		clickDistance  = distanceXY 
+		addNewOperation(false)
 	}
 })
 
+let historyButtonNumber = 0
+let figureNumber = 0
 let operationNumber = 1 
 function addHistoryButton() {
     let historyButton = new Button("operation " + operationNumber,"history")
 	historyButton.press()
 	historyButtonPanel.appendChild(historyButton.domElement)
 	operationNumber = operationNumber + 1
+	historyButtonNumber = historyButtonNumber + 1
+	console.log("historyButtonNumber: " + historyButtonNumber)
 }
-	
-function addNewOperation(size, doKeep) {
+
+
+function addNewOperation(doKeep) {
+	let size = 0
 	let shape        = selectedButtons.shape
 	let operation    = selectedButtons.operation
 	let invalidInput = !shape || !operation
-	if(invalidInput) return
+	if(invalidInput) return  
+
 	let nextFigureDesctiption = null
     let x = mouseClickPositionX
 	let y = mouseClickPositionY
-	whichFigure += 1
+	figureCount += 1
 	size = formatNumber(clickDistance)
 
+	let width  = Math.abs(mouse.distX)
+	let height = Math.abs(mouse.distY)
+	let rectX = mouseClickPositionX + width/2
+	let rectY = mouseClickPositionY + height/2
+
+	if(mouse.distY < 0) { rectY = rectY - height }
+	if(mouse.distX < 0) { rectX = rectX - width }
+		
 	if(shape === "circle" && doKeep) { 
 		nextFigureDesctiption = `
-			float figure_part_${whichFigure}(vec2 position) {
+			float figure_part_${figureCount}(vec2 position) {
 			vec2 position2 = translate(position,vec2(${x},${y}));
 			float circle = distanceToCircle(position2, ${size});
-			float old = figure_part_${whichFigure-1}(position);
+			float old = figure_part_${figureCount-1}(position);
 			float sub = ${operation}(old, circle);
 			return sub;
 		}`
-		lastFigure = `figure_part_${whichFigure}(position);`
+		lastFigure = `figure_part_${figureCount}(position);`
+		figureNumber = figureNumber + 1
+		console.log("figureNumber: " + figureNumber)
 		addHistoryButton()
 		
 	} else if(shape === "circle" && !doKeep) {
 		nextFigureDesctiption = `
-				float figure_part_${whichFigure}(vec2 position) {
+				float figure_part_${figureCount}(vec2 position) {
 				vec2 position2 = translate(position,vec2(${x},${y}));
 				float circle = distanceToCircle(position2, ${size});
 				float old = ${lastFigure};
@@ -429,38 +473,22 @@ function addNewOperation(size, doKeep) {
 			}`	
 			
 	} else if(shape === "rectangle" && doKeep) { 
-		let width  = Math.abs(mouse.DistX)
-		let height = Math.abs(mouse.DistY)
-		let x = mouseClickPositionX + width/2
-		let y = mouseClickPositionY + height/2
-
-		if(mouse.DistY < 0) { y = y - height }
-		if(mouse.DistX < 0) { x = x - width }
-		
 		nextFigureDesctiption = `
-			float figure_part_${whichFigure}(vec2 position) {
-			vec2 position2 = translate(position,vec2(${x},${y}));
+			float figure_part_${figureCount}(vec2 position) {
+			vec2 position2 = translate(position,vec2(${rectX},${rectY}));
 			float rectangle = distanceToRectangle(position2, vec2(${width}, ${height}));
-			float old = figure_part_${whichFigure-1}(position);
+			float old = figure_part_${figureCount-1}(position);
 			float sub = ${operation}(old, rectangle);
 			return sub;
 		}`		
-		lastFigure = `figure_part_${whichFigure}(position);`
+		lastFigure = `figure_part_${figureCount}(position);`
 		addHistoryButton()
 		
 
     } else if(shape === "rectangle" && !doKeep) {
-		let width  = Math.abs(mouse.DistX)
-		let height = Math.abs(mouse.DistY)
-		let x = mouseClickPositionX + width/2
-		let y = mouseClickPositionY + height/2
-
-		if(mouse.DistY < 0) { y = y - height }
-		if(mouse.DistX < 0) { x = x - width }
-		
 		nextFigureDesctiption = `
-				float figure_part_${whichFigure}(vec2 position) {
-				vec2 position2 = translate(position,vec2(${x},${y}));
+				float figure_part_${figureCount}(vec2 position) {
+				vec2 position2 = translate(position,vec2(${rectX},${rectY}));
 				float rectangle = distanceToRectangle(position2, vec2(${width}, ${height}));
 				float old = ${lastFigure};
 				float sub = ${operation}(old, rectangle);
@@ -470,14 +498,15 @@ function addNewOperation(size, doKeep) {
 
 	let fragmentShaderColorFigure2 = `
 	vec4 colorFigure(vec2 position) {
-		float distance = figure_part_${whichFigure}(position);
+		float distance = figure_part_${figureCount}(position);
 		float distance_outer= grow(distance,3.0);
 		float border = subtract(distance_outer,distance);
 		float alpha    = render(border);
 		return vec4(1.0, 1.0, 1.0, alpha);
 		}
-	
 	`
+
+	console.log(nextFigureDesctiption)
 
 	figureDescription = figureDescription + nextFigureDesctiption
 	let fragmentShader2 = fragmentShaderHeader + figureDescription + fragmentShaderColorFigure2 + 
