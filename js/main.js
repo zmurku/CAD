@@ -496,7 +496,7 @@ function addNewOperation(doKeep) {
 			}`				
 	}
 
-	let fragmentShaderColorFigure2 = `
+	let codeForTranslatingAllShapesToColor = `
 	vec4 colorFigure(vec2 position) {
 		float distance = figure_part_${figureCount}(position);
 		float distance_outer= grow(distance,3.0);
@@ -509,7 +509,7 @@ function addNewOperation(doKeep) {
 	console.log(nextFigureDesctiption)
 
 	figureDescription = figureDescription + nextFigureDesctiption
-	let fragmentShader2 = fragmentShaderHeader + figureDescription + fragmentShaderColorFigure2 + 
+	let fragmentShader2 = fragmentShaderHeader + figureDescription + codeForTranslatingAllShapesToColor + 
 	    fragmentShaderEnding 
 	let material2 = new THREE.ShaderMaterial({vertexShader:vertexShader,
 		fragmentShader:fragmentShader2,extensions})
