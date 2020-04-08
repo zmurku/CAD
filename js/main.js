@@ -189,7 +189,7 @@ vec4 grid(vec2 position) {
 	return vec4(1.0, 1.0, 1.0, alpha*0.08);
 }
 
-// float figure_part_1(vec2 position) {
+// float figure_part_0(vec2 position) {
 // 	vec2 position2 = translate(position, vec2(150.0, 0.0));
 // 	float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
 // 	float circle = distanceToCircle(position, 150.0);
@@ -201,7 +201,7 @@ vec4 grid(vec2 position) {
 `
 let fragmentShaderColorFigure = `
 vec4 colorFigure(vec2 position) {
-float distance = figure_part_1(position); 
+float distance = figure_part_0(position); 
 float distance_outer= grow(distance,3.0);
 float border = subtract(distance_outer,distance);
 float alpha    = render(border);
@@ -247,8 +247,8 @@ void main() {
 }
 `
 let figureDescription = `
-float figure_part_1(vec2 position) {
-	vec2 position2 = translate(position, vec2(${canvasWidth/2}.0, ${canvasHeight/2}.0));
+float figure_part_0(vec2 position) {
+	vec2 position2 = translate(position, vec2(${canvasWidth*2}.0, ${canvasHeight*2}.0));
 	float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
 	return rectangle;
 }
@@ -330,6 +330,7 @@ class Button {
 		selectedButtons[this.groupName] = this.name
 		console.log(this.name)
 		updateButtons()
+		
 	}
 
 
@@ -378,8 +379,8 @@ let extensions = {
 let material = new THREE.ShaderMaterial({vertexShader,fragmentShader,extensions})
 let mesh     = new THREE.Mesh(geometry, material)
 
-let nextFigureNumber    = 2 
-let lastFigure          = `figure_part_1(position)`   
+let nextFigureNumber    = 1 
+let lastFigure          = `figure_part_0(position)`   
 let mouseClickPositionX = 0
 let mouseClickPositionY = 0
 let clickDistance       = 0
@@ -498,7 +499,7 @@ function addNewOperation(doKeep) {
 
 	let codeForTranslatingAllShapesToColor = `
 	vec4 colorFigure(vec2 position) {
-		float distance = figure_part_${nextFigureNumber}(position);
+		float distance = figure_part_${operationNumber - 1}(position);
 		float distance_outer= grow(distance,3.0);
 		float border = subtract(distance_outer,distance);
 		float alpha    = render(border);
@@ -508,7 +509,6 @@ function addNewOperation(doKeep) {
 
 	
 
-	console.log(nextFigureDesctiption)
 
 	let localFigureDescription = figureDescription + nextFigureDesctiption
 
@@ -522,6 +522,9 @@ function addNewOperation(doKeep) {
 	let material2 = new THREE.ShaderMaterial({vertexShader:vertexShader,
 		fragmentShader:fragmentShader2,extensions})
 	mesh.material = material2
+	
+	console.log("----------------------------")
+	console.log(fragmentShader2)
 }
 
 scene.add(mesh)
