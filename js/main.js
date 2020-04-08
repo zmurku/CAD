@@ -378,8 +378,8 @@ let extensions = {
 let material = new THREE.ShaderMaterial({vertexShader,fragmentShader,extensions})
 let mesh     = new THREE.Mesh(geometry, material)
 
-let figureCount         = 1  
-let lastFigure          = `figure_part_${figureCount}(position)`   
+let nextFigureNumber    = 2 
+let lastFigure          = `figure_part_1(position)`   
 let mouseClickPositionX = 0
 let mouseClickPositionY = 0
 let clickDistance       = 0
@@ -437,7 +437,7 @@ function addNewOperation(doKeep) {
 	let nextFigureDesctiption = null
     let x = mouseClickPositionX
 	let y = mouseClickPositionY
-	figureCount += 1
+	
 	size = formatNumber(clickDistance)
 
 	let width  = Math.abs(mouse.distX)
@@ -450,21 +450,21 @@ function addNewOperation(doKeep) {
 		
 	if(shape === "circle" && doKeep) { 
 		nextFigureDesctiption = `
-			float figure_part_${figureCount}(vec2 position) {
+			float figure_part_${nextFigureNumber}(vec2 position) {
 			vec2 position2 = translate(position,vec2(${x},${y}));
 			float circle = distanceToCircle(position2, ${size});
-			float old = figure_part_${figureCount-1}(position);
+			float old = figure_part_${nextFigureNumber-1}(position);
 			float sub = ${operation}(old, circle);
 			return sub;
 		}`
-		lastFigure = `figure_part_${figureCount}(position);`
+		lastFigure = `figure_part_${nextFigureNumber}(position);`
 		figureNumber = figureNumber + 1
 		console.log("figureNumber: " + figureNumber)
 		addHistoryButton()
 		
 	} else if(shape === "circle" && !doKeep) {
 		nextFigureDesctiption = `
-				float figure_part_${figureCount}(vec2 position) {
+				float figure_part_${nextFigureNumber}(vec2 position) {
 				vec2 position2 = translate(position,vec2(${x},${y}));
 				float circle = distanceToCircle(position2, ${size});
 				float old = ${lastFigure};
@@ -474,20 +474,20 @@ function addNewOperation(doKeep) {
 			
 	} else if(shape === "rectangle" && doKeep) { 
 		nextFigureDesctiption = `
-			float figure_part_${figureCount}(vec2 position) {
+			float figure_part_${nextFigureNumber}(vec2 position) {
 			vec2 position2 = translate(position,vec2(${rectX},${rectY}));
 			float rectangle = distanceToRectangle(position2, vec2(${width}, ${height}));
-			float old = figure_part_${figureCount-1}(position);
+			float old = figure_part_${nextFigureNumber-1}(position);
 			float sub = ${operation}(old, rectangle);
 			return sub;
 		}`		
-		lastFigure = `figure_part_${figureCount}(position);`
+		lastFigure = `figure_part_${nextFigureNumber}(position);`
 		addHistoryButton()
 		
 
     } else if(shape === "rectangle" && !doKeep) {
 		nextFigureDesctiption = `
-				float figure_part_${figureCount}(vec2 position) {
+				float figure_part_${nextFigureNumber}(vec2 position) {
 				vec2 position2 = translate(position,vec2(${rectX},${rectY}));
 				float rectangle = distanceToRectangle(position2, vec2(${width}, ${height}));
 				float old = ${lastFigure};
@@ -498,7 +498,7 @@ function addNewOperation(doKeep) {
 
 	let codeForTranslatingAllShapesToColor = `
 	vec4 colorFigure(vec2 position) {
-		float distance = figure_part_${figureCount}(position);
+		float distance = figure_part_${nextFigureNumber}(position);
 		float distance_outer= grow(distance,3.0);
 		float border = subtract(distance_outer,distance);
 		float alpha    = render(border);
@@ -506,10 +506,18 @@ function addNewOperation(doKeep) {
 		}
 	`
 
+	
+
 	console.log(nextFigureDesctiption)
 
-	figureDescription = figureDescription + nextFigureDesctiption
-	let fragmentShader2 = fragmentShaderHeader + figureDescription + codeForTranslatingAllShapesToColor + 
+	let localFigureDescription = figureDescription + nextFigureDesctiption
+
+    if(doKeep) {
+		nextFigureNumber += 1
+		figureDescription = localFigureDescription
+	}
+
+	let fragmentShader2 = fragmentShaderHeader + localFigureDescription + codeForTranslatingAllShapesToColor + 
 	    fragmentShaderEnding 
 	let material2 = new THREE.ShaderMaterial({vertexShader:vertexShader,
 		fragmentShader:fragmentShader2,extensions})
