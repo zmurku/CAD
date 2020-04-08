@@ -300,6 +300,7 @@ function updateButtons() {
 let pressNumber = 0
 class Button {
 	constructor(name,groupName) {
+		this.onPress   = null
 		this.name      = name
 		this.groupName = groupName
         buttons[name]  = this
@@ -327,12 +328,13 @@ class Button {
 	}
 
 	press() {
+		if(this.onPress !== null) {
+			this.onPress()
+		}
 		selectedButtons[this.groupName] = this.name
-		console.log(this.name)
-		updateButtons()
 		
+		updateButtons()		
 	}
-
 
 	over() {
         if(selectedButtons[this.groupName] !== this.name) {
@@ -384,6 +386,7 @@ let lastFigure          = `figure_part_0(position)`
 let mouseClickPositionX = 0
 let mouseClickPositionY = 0
 let clickDistance       = 0
+let localFigureDescription = 0
 
 function formatNumber(num) {
 	if(num%1 === 0){
@@ -419,12 +422,16 @@ let historyButtonNumber = 0
 let figureNumber = 0
 let operationNumber = 1 
 function addHistoryButton() {
-    let historyButton = new Button("operation " + operationNumber,"history")
+	let historyButton = new Button("operation " + operationNumber,"history")
+	let currentOperationNumber = operationNumber
+	historyButton.onPress = () => {
+		drawingAllShapes(currentOperationNumber)
+	}
 	historyButton.press()
 	historyButtonPanel.appendChild(historyButton.domElement)
 	operationNumber = operationNumber + 1
 	historyButtonNumber = historyButtonNumber + 1
-	console.log("historyButtonNumber: " + historyButtonNumber)
+	// console.log("historyButtonNumber: " + historyButtonNumber)
 }
 
 
@@ -460,7 +467,7 @@ function addNewOperation(doKeep) {
 		}`
 		lastFigure = `figure_part_${nextFigureNumber}(position);`
 		figureNumber = figureNumber + 1
-		console.log("figureNumber: " + figureNumber)
+		// console.log("figureNumber: " + figureNumber)
 		addHistoryButton()
 		
 	} else if(shape === "circle" && !doKeep) {
@@ -497,34 +504,35 @@ function addNewOperation(doKeep) {
 			}`				
 	}
 
-	let codeForTranslatingAllShapesToColor = `
-	vec4 colorFigure(vec2 position) {
-		float distance = figure_part_${operationNumber - 1}(position);
-		float distance_outer= grow(distance,3.0);
-		float border = subtract(distance_outer,distance);
-		float alpha    = render(border);
-		return vec4(1.0, 1.0, 1.0, alpha);
-		}
-	`
 
-	
-
-
-	let localFigureDescription = figureDescription + nextFigureDesctiption
+	localFigureDescription = figureDescription + nextFigureDesctiption
 
     if(doKeep) {
 		nextFigureNumber += 1
 		figureDescription = localFigureDescription
 	}
 
-	let fragmentShader2 = fragmentShaderHeader + localFigureDescription + codeForTranslatingAllShapesToColor + 
-	    fragmentShaderEnding 
+	drawingAllShapes(operationNumber - 1)
+
+}
+
+function drawingAllShapes(shapeNumber) {
+	let codeForTranslatingAllShapesToColor = `
+		vec4 colorFigure(vec2 position) {
+			float distance = figure_part_${shapeNumber}(position);
+			float distance_outer= grow(distance,3.0);
+			float border = subtract(distance_outer,distance);
+			float alpha    = render(border);
+			return vec4(1.0, 1.0, 1.0, alpha);
+			}
+		`
+
+	let fragmentShader2 = fragmentShaderHeader + localFigureDescription + 
+		codeForTranslatingAllShapesToColor + fragmentShaderEnding 
 	let material2 = new THREE.ShaderMaterial({vertexShader:vertexShader,
 		fragmentShader:fragmentShader2,extensions})
 	mesh.material = material2
-	
-	console.log("----------------------------")
-	console.log(fragmentShader2)
+
 }
 
 scene.add(mesh)
@@ -532,6 +540,7 @@ scene.add(mesh)
 function render() {
 	renderer.render(scene, camera)
 	window.requestAnimationFrame(render)
+	
 }
 
 window.requestAnimationFrame(render)
