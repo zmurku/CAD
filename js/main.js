@@ -300,7 +300,7 @@ function updateButtons() {
 let pressNumber = 0
 class Button {
 	constructor(name,groupName) {
-		this.onPress   = null
+		this.onPressRegistry = []
 		this.name      = name
 		this.groupName = groupName
         buttons[name]  = this
@@ -328,11 +328,10 @@ class Button {
 	}
 
 	press() {
-		if(this.onPress !== null) {
-			this.onPress()
-		}
 		selectedButtons[this.groupName] = this.name
-		
+		for(let f of this.onPressRegistry){
+			f()
+		}
 		updateButtons()		
 	}
 
@@ -347,6 +346,12 @@ class Button {
 			this.domElement.style.setProperty("background-color", "#888888")
 		}
 	}
+
+	addOnPress(f) {
+		this.onPressRegistry.push(f)
+	}	
+	
+
 }
 
 
@@ -373,6 +378,15 @@ operationsPanel.appendChild(buttonIntersect.domElement)
 
 
 
+buttonCircle.addOnPress(() => {
+	console.log("hi")
+})
+
+buttonCircle.addOnPress(() => {
+	console.log("ho")
+})
+
+
 let extensions = {
 	derivatives: true
 }
@@ -395,6 +409,7 @@ function formatNumber(num) {
 		return num.toString()
 	}	
 }
+
 
 
 canvas.addEventListener('mousedown', function(e) {
@@ -424,9 +439,9 @@ let operationNumber = 1
 function addHistoryButton() {
 	let historyButton = new Button("operation " + operationNumber,"history")
 	let currentOperationNumber = operationNumber
-	historyButton.onPress = () => {
+	historyButton.addOnPress(() => {
 		drawingAllShapes(currentOperationNumber)
-	}
+	})
 	historyButton.press()
 	historyButtonPanel.appendChild(historyButton.domElement)
 	operationNumber = operationNumber + 1
