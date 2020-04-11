@@ -277,33 +277,32 @@ let mouse = {
 // ===============
 
 let buttons = {}
-let selectedButtons = {}
-function updateButtons() {
-    for(let buttonName in buttons) {
-		let button = buttons[buttonName]
-		button.domElement.style.setProperty("background-color", "#888888")
-		let doHighlight = false 
+// let selectedButtons = {}
+// function updateButtons() {
+//     for(let buttonName in buttons) {
+// 		let button = buttons[buttonName]
+// 		button.domElement.style.setProperty("background-color", "#888888")
+// 		let doHighlight = false 
 
-        for(let groupName in selectedButtons) {
-			if(selectedButtons[groupName] === buttonName) {
-				doHighlight = true
-			}
-		}
+//         for(let groupName in selectedButtons) {
+// 			if(selectedButtons[groupName] === buttonName) {
+// 				doHighlight = true
+// 			}
+// 		}
 
-		if(doHighlight) {
-			button.domElement.style.setProperty("background-color", "#003B62")
-		}
-	}
-}
+// 		if(doHighlight) {
+// 			button.domElement.style.setProperty("background-color", "#003B62")
+// 		}
+// 	}
+// }
 
 
-let pressNumber = 0
 class Button {
-	constructor(name,groupName) {
+	constructor(name) {
+		this.isPressed = false
+		this.isHovered = false 
 		this.onPressRegistry = []
 		this.name      = name
-		this.groupName = groupName
-        buttons[name]  = this
 		let divElement = document.createElement("div")
 		divElement.id  = this.name
 		divElement.innerText = this.name
@@ -321,70 +320,94 @@ class Button {
 		})
 
 		divElement.addEventListener("mousedown", () => {
-			this.press()
+			this.toggle()
 		})
 		
 		this.domElement = divElement
 	}
 
 	press() {
-		selectedButtons[this.groupName] = this.name
 		for(let f of this.onPressRegistry){
 			f()
 		}
-		updateButtons()		
+		this.isPressed = true
+		this.updateStyle()
+	}
+
+	release() {
+		this.isPressed = false 
+		this.updateStyle()
+	}
+
+	toggle() {
+		if(this.isPressed) {
+			this.release()
+		} else {
+			this.press()
+		}
 	}
 
 	over() {
-        if(selectedButtons[this.groupName] !== this.name) {
-			this.domElement.style.setProperty("background-color", "#C0C0C0")	
-		}
+		this.isHovered = true
+		this.updateStyle()
 	}
 
 	out() {
-        if(selectedButtons[this.groupName] !== this.name){
-			this.domElement.style.setProperty("background-color", "#888888")
-		}
+		this.isHovered = false
+		this.updateStyle()
 	}
 
 	addOnPress(f) {
 		this.onPressRegistry.push(f)
 	}	
-	
+
+	updateStyle() {
+		let darkBlue  = "#003B62"
+		let lightBlue = "#53B3E1"
+		let darkGray  = "#888888"
+		let lightGray = "#AAAAAA"
+
+		let color = null
+		// if(this.isPressed) {
+		// 	if(this.isHovered) { color = lightBlue } 
+		// 	else               { color = darkBlue }
+		// } else {
+		// 	if(this.isHovered) { color = lightGray } 
+		// 	else               { color = darkGray }
+		// }
+
+		if     ( this.isPressed &&  this.isHovered) { color = lightBlue }
+		else if( this.isPressed && !this.isHovered) { color = darkBlue }
+		else if(!this.isPressed &&  this.isHovered) { color = lightGray }
+		else                                        { color = darkGray }
+
+		this.domElement.style.setProperty("background-color", color)
+	}
 
 }
 
-
+// this.domElement.style.setProperty("background-color", "#003B62")
 // ===================
 // === New Buttons ===
 // ===================
 
 
-let buttonCircle    = new Button("circle","shape")
-let buttonRectangle = new Button("rectangle","shape")
-let buttonTriangle  = new Button("triangle","shape")
+let buttonCircle    = new Button("circle")
+let buttonRectangle = new Button("rectangle")
+let buttonTriangle  = new Button("triangle")
 
 shapesPanel.appendChild(buttonCircle.domElement)
 shapesPanel.appendChild(buttonRectangle.domElement)
 shapesPanel.appendChild(buttonTriangle.domElement)
 
-let buttonMerge     = new Button("merge","operation")
-let buttonSubtract  = new Button("subtract","operation")
-let buttonIntersect = new Button("intersect","operation")
+let buttonMerge     = new Button("merge")
+let buttonSubtract  = new Button("subtract")
+let buttonIntersect = new Button("intersect")
 
 operationsPanel.appendChild(buttonMerge.domElement)
 operationsPanel.appendChild(buttonSubtract.domElement)
 operationsPanel.appendChild(buttonIntersect.domElement)
 
-
-
-buttonCircle.addOnPress(() => {
-	console.log("hi")
-})
-
-buttonCircle.addOnPress(() => {
-	console.log("ho")
-})
 
 
 let extensions = {
@@ -409,7 +432,6 @@ function formatNumber(num) {
 		return num.toString()
 	}	
 }
-
 
 
 canvas.addEventListener('mousedown', function(e) {
@@ -446,14 +468,13 @@ function addHistoryButton() {
 	historyButtonPanel.appendChild(historyButton.domElement)
 	operationNumber = operationNumber + 1
 	historyButtonNumber = historyButtonNumber + 1
-	// console.log("historyButtonNumber: " + historyButtonNumber)
 }
 
 
 function addNewOperation(doKeep) {
 	let size = 0
-	let shape        = selectedButtons.shape
-	let operation    = selectedButtons.operation
+	// let shape        = selectedButtons.shape
+	// let operation    = selectedButtons.operation
 	let invalidInput = !shape || !operation
 	if(invalidInput) return  
 
@@ -482,7 +503,6 @@ function addNewOperation(doKeep) {
 		}`
 		lastFigure = `figure_part_${nextFigureNumber}(position);`
 		figureNumber = figureNumber + 1
-		// console.log("figureNumber: " + figureNumber)
 		addHistoryButton()
 		
 	} else if(shape === "circle" && !doKeep) {
