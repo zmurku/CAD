@@ -276,69 +276,44 @@ let mouse = {
 // === Buttons ===
 // ===============
 
-let buttons = {}
-// let selectedButtons = {}
-// function updateButtons() {
-//     for(let buttonName in buttons) {
-// 		let button = buttons[buttonName]
-// 		button.domElement.style.setProperty("background-color", "#888888")
-// 		let doHighlight = false 
-
-//         for(let groupName in selectedButtons) {
-// 			if(selectedButtons[groupName] === buttonName) {
-// 				doHighlight = true
-// 			}
-// 		}
-
-// 		if(doHighlight) {
-// 			button.domElement.style.setProperty("background-color", "#003B62")
-// 		}
-// 	}
-// }
-
-
 class Button {
 	constructor(name) {
-		this.isPressed = false
-		this.isHovered = false 
+		this.isPressed       = false
+		this.isHovered       = false 
 		this.onPressRegistry = []
-		this.name      = name
-		let divElement = document.createElement("div")
-		divElement.id  = this.name
+		this.name            = name
+		let divElement       = document.createElement("div")
+		divElement.id        = this.name
 		divElement.innerText = this.name
 		divElement.style.setProperty("background-color", "#888888")
 		divElement.style.setProperty("width", "100px")
 		divElement.style.setProperty("height", "64px")
 		divElement.style.setProperty("display", "inline-block")
 
-		divElement.addEventListener("mouseover", () => {
-			this.over()
-		})
-
-		divElement.addEventListener("mouseout", () => {
-			this.out()
-		})
-
-		divElement.addEventListener("mousedown", () => {
-			this.toggle()
-		})
+		divElement.addEventListener("mouseover" , () => { this.over() })
+		divElement.addEventListener("mouseout"  , () => { this.out() })
+		divElement.addEventListener("mousedown" , () => { this.toggle() })
 		
 		this.domElement = divElement
 	}
 
+	/// Wciska przycisk i wykonuje wszystkie callbaci zarejestrowane w `onPressRegistry`.
 	press() {
+		// dla kazdej funkcji `f`, bedacej elementem `onPressRegistry` wykonuje ja.
 		for(let f of this.onPressRegistry){
 			f()
 		}
 		this.isPressed = true
-		this.updateStyle()
+		this._updateStyle()
 	}
 
+	/// Wyciska przycisk.
 	release() {
 		this.isPressed = false 
-		this.updateStyle()
+		this._updateStyle()
 	}
 
+	/// Wciska przycisk, kiedy nie jest wciśnięty i wyciska go, gdy jest wciśnięty.
 	toggle() {
 		if(this.isPressed) {
 			this.release()
@@ -347,34 +322,30 @@ class Button {
 		}
 	}
 
+	/// Ustawia przycisk w trybie "najechania".
 	over() {
 		this.isHovered = true
-		this.updateStyle()
+		this._updateStyle()
 	}
 
+	/// Ustawia przycisk w trybie "zjechania".
 	out() {
 		this.isHovered = false
-		this.updateStyle()
+		this._updateStyle()
 	}
 
+	/// Przyjmuje callback, który zostanie wykonany po wciśnięciu przycisku. 
 	addOnPress(f) {
 		this.onPressRegistry.push(f)
 	}	
 
-	updateStyle() {
+	_updateStyle() {
 		let darkBlue  = "#003B62"
 		let lightBlue = "#53B3E1"
 		let darkGray  = "#888888"
 		let lightGray = "#AAAAAA"
 
 		let color = null
-		// if(this.isPressed) {
-		// 	if(this.isHovered) { color = lightBlue } 
-		// 	else               { color = darkBlue }
-		// } else {
-		// 	if(this.isHovered) { color = lightGray } 
-		// 	else               { color = darkGray }
-		// }
 
 		if     ( this.isPressed &&  this.isHovered) { color = lightBlue }
 		else if( this.isPressed && !this.isHovered) { color = darkBlue }
@@ -386,15 +357,43 @@ class Button {
 
 }
 
-// this.domElement.style.setProperty("background-color", "#003B62")
+
+class ButtonPanel {
+	constructor() {
+		this.buttons = []
+	}
+	
+	addButton(name) {
+		let newButton = new Button(name)
+		this.buttons.push(newButton)
+		newButton.addOnPress(function() { console.log("hello world")} )
+		return newButton
+	}
+}
+
 // ===================
 // === New Buttons ===
 // ===================
 
+let shapesButtonPanel = new ButtonPanel()
+let buttonCircle = shapesButtonPanel.addButton("circle")
+let buttonRectangle = shapesButtonPanel.addButton("rectangle")
+let buttonTriangle = shapesButtonPanel.addButton("triangle")
 
-let buttonCircle    = new Button("circle")
-let buttonRectangle = new Button("rectangle")
-let buttonTriangle  = new Button("triangle")
+buttonCircle.addOnPress(() => {
+	buttonRectangle.release()
+	buttonTriangle.release()
+})
+
+buttonRectangle.addOnPress(() => {
+	buttonCircle.release()
+	buttonTriangle.release()
+})
+
+buttonTriangle.addOnPress(() => {
+	buttonRectangle.release()
+	buttonCircle.release()
+})
 
 shapesPanel.appendChild(buttonCircle.domElement)
 shapesPanel.appendChild(buttonRectangle.domElement)
@@ -403,6 +402,21 @@ shapesPanel.appendChild(buttonTriangle.domElement)
 let buttonMerge     = new Button("merge")
 let buttonSubtract  = new Button("subtract")
 let buttonIntersect = new Button("intersect")
+
+buttonMerge.addOnPress(() => {
+	buttonSubtract.release()
+	buttonIntersect.release()
+})
+
+buttonIntersect.addOnPress(() => {
+	buttonSubtract.release()
+	buttonMerge.release()
+})
+
+buttonSubtract.addOnPress(() => {
+	buttonMerge.release()
+	buttonIntersect.release()
+})
 
 operationsPanel.appendChild(buttonMerge.domElement)
 operationsPanel.appendChild(buttonSubtract.domElement)
@@ -418,11 +432,11 @@ let extensions = {
 let material = new THREE.ShaderMaterial({vertexShader,fragmentShader,extensions})
 let mesh     = new THREE.Mesh(geometry, material)
 
-let nextFigureNumber    = 1 
-let lastFigure          = `figure_part_0(position)`   
-let mouseClickPositionX = 0
-let mouseClickPositionY = 0
-let clickDistance       = 0
+let nextFigureNumber       = 1 
+let lastFigure             = `figure_part_0(position)`   
+let mouseClickPositionX    = 0
+let mouseClickPositionY    = 0
+let clickDistance          = 0
 let localFigureDescription = 0
 
 function formatNumber(num) {
@@ -455,26 +469,24 @@ canvas.addEventListener('mousemove', function(e) {
 	}
 })
 
-let historyButtonNumber = 0
-let figureNumber = 0
-let operationNumber = 1 
+let historyButtonNumber        = 0
+let figureNumber               = 0
+let operationNumber            = 1 
 function addHistoryButton() {
-	let historyButton = new Button("operation " + operationNumber,"history")
+	let historyButton          = new Button("operation " + operationNumber,"history")
 	let currentOperationNumber = operationNumber
 	historyButton.addOnPress(() => {
 		drawingAllShapes(currentOperationNumber)
 	})
 	historyButton.press()
 	historyButtonPanel.appendChild(historyButton.domElement)
-	operationNumber = operationNumber + 1
-	historyButtonNumber = historyButtonNumber + 1
+	operationNumber            = operationNumber + 1
+	historyButtonNumber        = historyButtonNumber + 1
 }
 
 
 function addNewOperation(doKeep) {
 	let size = 0
-	// let shape        = selectedButtons.shape
-	// let operation    = selectedButtons.operation
 	let invalidInput = !shape || !operation
 	if(invalidInput) return  
 
@@ -486,8 +498,8 @@ function addNewOperation(doKeep) {
 
 	let width  = Math.abs(mouse.distX)
 	let height = Math.abs(mouse.distY)
-	let rectX = mouseClickPositionX + width/2
-	let rectY = mouseClickPositionY + height/2
+	let rectX  = mouseClickPositionX + width/2
+	let rectY  = mouseClickPositionY + height/2
 
 	if(mouse.distY < 0) { rectY = rectY - height }
 	if(mouse.distX < 0) { rectX = rectX - width }
