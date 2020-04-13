@@ -26,6 +26,8 @@ geometry.setAttribute('position', new THREE.BufferAttribute(vertices,itemsPerEle
 geometry.dynamic    = true
 let canvas          = document.getElementById('viewport')
 canvas.appendChild(renderer.domElement)
+let shapesPanel        = document.getElementById('button-panel')  
+let operationsPanel    = document.getElementById('button-panel-2') 
 let historyButtonPanel = document.getElementById('history-button-panel')
 let fieldOfViewDegrees = 45 
 let aspectRatio        = window.innerWidth / window.innerHeight
@@ -52,22 +54,16 @@ void main() {
 	// Contains the position of the current vertex.
     gl_Position = vec4(position.x,position.y,position.z,1.0); 
 }
-
 `
 
 let fragmentShaderHeader = `
-
 uniform vec2 u_resolution;
 uniform float u_time;
-
-
 // Position of te pixel that we are currently drawing in the space [-10,10] x [-10,10].
 varying vec2 currentPixelPosition;
-
 // Use high precision floats - to compute thingswithout errors
 // "When adding or dividing numbers,be precise"
 precision mediump float;
-
 // Returns distance between 'samplePosition' and the border of circle placed at theo rigin (0,0). 
 // Insid it's < 0. Outside it's > 0.
 float distanceToCircle(vec2 samplePosition, float radius){
@@ -75,7 +71,6 @@ float distanceToCircle(vec2 samplePosition, float radius){
  	float distanceFromBorder = distanceFromCenter - radius;
     return distanceFromBorder;
 }
-
 // Returns distance between 'samplePosition' and the border of rectangle placed at the origin (0,0). 
 // Insid it's < 0. Outside it's > 0.
 float distanceToRectangle(vec2 samplePosition, vec2 size){
@@ -85,66 +80,51 @@ float distanceToRectangle(vec2 samplePosition, vec2 size){
     float insideDistance = min(max(componentWiseEdgeDistance.x, componentWiseEdgeDistance.y), 0.0);
     return outsideDistance + insideDistance;
 }
-
 float distanceToLineVertical(vec2 samplePosition, vec2 halfSize){
     vec2 componentWiseEdgeDistance = abs(samplePosition) - halfSize;
     return componentWiseEdgeDistance.x;
 }
-
 float distanceToLineHorizontal(vec2 samplePosition, vec2 halfSize){
     vec2 componentWiseEdgeDistance = abs(samplePosition) - halfSize;
     return componentWiseEdgeDistance.y;
 }
-
 float distanceToLineVertical5(vec2 samplePosition, vec2 halfSize){
     vec2 componentWiseEdgeDistance = abs(samplePosition) - halfSize;
     return componentWiseEdgeDistance.x;
 }
-
 float distanceToLineHorizontal5(vec2 samplePosition, vec2 halfSize){
     vec2 componentWiseEdgeDistance = abs(samplePosition) - halfSize;
     return componentWiseEdgeDistance.y;
 }
-
-
 /// Returns distance to a combined shape.
 float merge(float distanceToShape1, float distanceToShape2){
     return min(distanceToShape1, distanceToShape2);
 }
-
 float intersect(float shape1, float shape2){
     return max(shape1, shape2);
 }
-
 float subtract(float base, float subtraction){
     return intersect(base, -subtraction);
 }
-
 float interpolate(float shape1, float shape2, float amount){
     return mix(shape1, shape2, amount);
 }
-
 float grow(float distance, float size){
     return distance - size;
 }
-
 vec2 repeatX(vec2 position, float distance) {
 	float x = mod(position.x, distance);
 	float y = position.y;
 	return vec2(x, y);
 }
-
 vec2 repeatY(vec2 position, float distance) {
 	float y = mod(position.y, distance);
 	float x = position.x;
 	return vec2(x, y);
 }
-
 vec2 translate(vec2 samplePosition, vec2 offset){
 	return samplePosition - offset;
 }
-
-
 vec2 rotate(vec2 samplePosition, float rotation){
     const float PI = 3.14159;
     float angle = rotation * PI * 2.0 * -1.0;
@@ -154,12 +134,9 @@ vec2 rotate(vec2 samplePosition, float rotation){
 	float y      = cosine * samplePosition.y - sine * samplePosition.x;
     return vec2(x,y);
 }
-
 vec2 scale(vec2 samplePosition, float scale){
     return samplePosition / scale;
 }
-
-
 float grid_distance(vec2 position) {
 	vec2 repPositionX = repeatX(position, 20.0);
 	vec2 repPositionY = repeatY(position, 20.0);
@@ -174,19 +151,16 @@ float grid_distance(vec2 position) {
 	float addaddXD = merge(add, add5);
 	return addaddXD;
 }
-
 float render (float distance) {
 	float distanceChange = fwidth(distance) * 0.5;
 	float antialiasedCutoff = smoothstep(distanceChange, -distanceChange, distance);
 	return antialiasedCutoff;
 }
-
 vec4 grid(vec2 position) {
 	float distance = grid_distance(position);
 	float alpha    = render(distance);
 	return vec4(1.0, 1.0, 1.0, alpha*0.08);
 }
-
 // float figure_part_0(vec2 position) {
 // 	vec2 position2 = translate(position, vec2(150.0, 0.0));
 // 	float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
@@ -211,8 +185,6 @@ float background(vec2 position) {
 	float rectangle = distanceToRectangle(position, vec2(${canvasWidth}.0, ${canvasHeight}.0));
 	return rectangle;
 }
-
-
 vec4 mix_colors(vec4 background, vec4 foreground) {
 	vec4 p_foreground = foreground * foreground.a;
 	vec4 p_background = background * background.a;
@@ -220,25 +192,21 @@ vec4 mix_colors(vec4 background, vec4 foreground) {
 	vec4 cd   = p_cd / p_cd.a;
 	return cd;
 }
-
 vec4 layer1(vec2 position) {
 	return vec4(0.03, 0.15, 0.26, 1.0);
 }
-
 vec4 layer2(vec2 position) {
 	vec4 background = layer1(position);
 	vec4 foreground = grid(position);
 	vec4 add = mix_colors(background, foreground);
 	return add;
 }
-
 vec4 layer3(vec2 position) {
 	vec4 grid = layer2(position);
 	vec4 figure = colorFigure(position);
 	vec4 add = mix_colors(grid, figure);
 	return add;
 }
-
 // Execute for every pixel.
 void main() {
 	gl_FragColor = layer3(currentPixelPosition);
@@ -255,8 +223,8 @@ float figure_part_0(vec2 position) {
 let fragmentShader = fragmentShaderHeader + figureDescription + fragmentShaderColorFigure + 
 	fragmentShaderEnding 
 	
-let material = new THREE.ShaderMaterial({vertexShader,fragmentShader,extensions})
-let mesh     = new THREE.Mesh(geometry, material)
+
+
 
  
 // =============
@@ -269,6 +237,124 @@ let mouse = {
 	distY: 0
 }
 
+
+// ===============
+// === Buttons ===
+// ===============
+
+
+// ===================
+// === New Buttons ===
+// ===================
+
+let shapesButtonPanel = new ButtonPanel()
+let buttonCircle = shapesButtonPanel.addButton("circle")
+let buttonRectangle = shapesButtonPanel.addButton("rectangle")
+let buttonTriangle = shapesButtonPanel.addButton("triangle")
+
+buttonCircle.addOnPress(() => {
+	buttonRectangle.release()
+	buttonTriangle.release()
+})
+
+buttonRectangle.addOnPress(() => {
+	buttonCircle.release()
+	buttonTriangle.release()
+})
+
+buttonTriangle.addOnPress(() => {
+	buttonRectangle.release()
+	buttonCircle.release()
+})
+
+shapesPanel.appendChild(buttonCircle.domElement)
+shapesPanel.appendChild(buttonRectangle.domElement)
+shapesPanel.appendChild(buttonTriangle.domElement)
+
+let buttonMerge     = new Button("merge")
+let buttonSubtract  = new Button("subtract")
+let buttonIntersect = new Button("intersect")
+
+buttonMerge.addOnPress(() => {
+	buttonSubtract.release()
+	buttonIntersect.release()
+})
+
+buttonIntersect.addOnPress(() => {
+	buttonSubtract.release()
+	buttonMerge.release()
+})
+
+buttonSubtract.addOnPress(() => {
+	buttonMerge.release()
+	buttonIntersect.release()
+})
+
+operationsPanel.appendChild(buttonMerge.domElement)
+operationsPanel.appendChild(buttonSubtract.domElement)
+operationsPanel.appendChild(buttonIntersect.domElement)
+
+
+
+let extensions = {
+	derivatives: true
+}
+
+
+let material = new THREE.ShaderMaterial({vertexShader,fragmentShader,extensions})
+let mesh     = new THREE.Mesh(geometry, material)
+
+let nextFigureNumber       = 1 
+let lastFigure             = `figure_part_0(position)`   
+let mouseClickPositionX    = 0
+let mouseClickPositionY    = 0
+let clickDistance          = 0
+let localFigureDescription = 0
+
+function formatNumber(num) {
+	if(num%1 === 0){
+		return num+".0"
+	} else {
+		return num.toString()
+	}	
+}
+
+
+canvas.addEventListener('mousedown', function(e) {
+	mouseClickPositionX = e.offsetX
+	mouseClickPositionY = canvasHeight - e.offsetY 
+	mouse.isDown = true
+})
+
+canvas.addEventListener('mouseup', function(e) {
+	mouse.isDown = false
+	addNewOperation(true)
+})
+
+canvas.addEventListener('mousemove', function(e) {
+    if(mouse.isDown) {
+		mouse.distX    = e.offsetX - mouseClickPositionX
+		mouse.distY    = (canvasHeight - e.offsetY) - mouseClickPositionY
+		let distanceXY = (Math.sqrt(mouse.distX*mouse.distX + mouse.distY*mouse.distY))
+		clickDistance  = distanceXY 
+		addNewOperation(false)
+	}
+})
+
+let historyButtonNumber        = 0
+let figureNumber               = 0
+let operationNumber            = 1 
+function addHistoryButton() {
+	let historyButton          = new Button("operation " + operationNumber,"history")
+	let currentOperationNumber = operationNumber
+	historyButton.addOnPress(() => {
+		drawingAllShapes(currentOperationNumber)
+	})
+	historyButton.press()
+	historyButtonPanel.appendChild(historyButton.domElement)
+	operationNumber            = operationNumber + 1
+	historyButtonNumber        = historyButtonNumber + 1
+}
 
 
 function addNewOperation(doKeep) {
@@ -377,3 +463,4 @@ function render() {
 }
 
 window.requestAnimationFrame(render)
+
