@@ -229,63 +229,40 @@ let mouse = {
 }
 
 
-// ===============
-// === Buttons ===
-// ===============
-
-
 // ===================
 // === New Buttons ===
 // ===================
 
+
 let shapesButtonPanel = new ButtonPanel()
-let buttonCircle = shapesButtonPanel.addButton("circle")
-let buttonRectangle = shapesButtonPanel.addButton("rectangle")
-let buttonTriangle = shapesButtonPanel.addButton("triangle")
+let buttonCircle      = shapesButtonPanel.addButton("circle")
+let buttonRectangle   = shapesButtonPanel.addButton("rectangle")
+let buttonTriangle    = shapesButtonPanel.addButton("triangle")
 
-buttonCircle.addOnPress(() => {
-    buttonRectangle.release()
-    buttonTriangle.release()
-})
+let shape = null
 
-buttonRectangle.addOnPress(() => {
-    buttonCircle.release()
-    buttonTriangle.release()
-})
-
-buttonTriangle.addOnPress(() => {
-    buttonRectangle.release()
-    buttonCircle.release()
-})
+buttonCircle.addOnPress(() =>    { shape = "circle" })
+buttonRectangle.addOnPress(() => { shape = "rectangle" })
+buttonTriangle.addOnPress(() =>  { shape = "triangle" })
 
 shapesPanel.appendChild(buttonCircle.domElement)
 shapesPanel.appendChild(buttonRectangle.domElement)
 shapesPanel.appendChild(buttonTriangle.domElement)
 
-let buttonMerge     = new Button("merge")
-let buttonSubtract  = new Button("subtract")
-let buttonIntersect = new Button("intersect")
+let operationsButtonPanel = new ButtonPanel()
+let buttonMerge           = operationsButtonPanel.addButton("merge")
+let buttonSubtract        = operationsButtonPanel.addButton("subtract")
+let buttonIntersect       = operationsButtonPanel.addButton("intersect")
 
-buttonMerge.addOnPress(() => {
-    buttonSubtract.release()
-    buttonIntersect.release()
-})
-
-buttonIntersect.addOnPress(() => {
-    buttonSubtract.release()
-    buttonMerge.release()
-})
-
-buttonSubtract.addOnPress(() => {
-    buttonMerge.release()
-    buttonIntersect.release()
-})
+let operation = null
 
 operationsPanel.appendChild(buttonMerge.domElement)
 operationsPanel.appendChild(buttonSubtract.domElement)
 operationsPanel.appendChild(buttonIntersect.domElement)
 
-
+buttonMerge.addOnPress(() =>      { operation = "merge" })
+buttonSubtract.addOnPress(() =>   { operation = "subtract" })
+buttonIntersect.addOnPress(() =>  { operation = "intersect" })
 
 let extensions = {
     derivatives: true
@@ -349,6 +326,7 @@ function addHistoryButton() {
 
 
 function addNewOperation(doKeep) {
+
     let size = 0
     let invalidInput = !shape || !operation
     if(invalidInput) return  

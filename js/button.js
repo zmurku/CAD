@@ -80,18 +80,26 @@ class Button {
 
 }
 
-
+// Allows creating new buttons. Remembers them and in case a button is pressed, makes all other
+// buttons released.
 class ButtonPanel {
     constructor() {
         this.buttons = []
     }
     
+    /// Creates a new button in this panel.
     addButton(name) {
         let newButton = new Button(name)
         this.buttons.push(newButton)
-        newButton.addOnPress(function() { console.log("hello world")} )
+        newButton.addOnPress(() => { 
+            for(let button of this.buttons) {
+                button.release()
+            }
+        })
         return newButton
+        
     }
 }
 
-    
+
+
