@@ -26,9 +26,9 @@ geometry.setAttribute('position', new THREE.BufferAttribute(vertices,itemsPerEle
 geometry.dynamic    = true
 let canvas          = document.getElementById('viewport')
 canvas.appendChild(renderer.domElement)
-let shapesPanel        = document.getElementById('button-panel')  
-let operationsPanel    = document.getElementById('button-panel-2') 
-let historyButtonPanel = document.getElementById('history-button-panel')
+let shapesPanelDiv        = document.getElementById('button-panel')  
+let operationsPanelDiv    = document.getElementById('button-panel-2') 
+let historyButtonPanelDiv = document.getElementById('history-button-panel')
 let fieldOfViewDegrees = 45 
 let aspectRatio        = window.innerWidth / window.innerHeight
 let nearClippingPlane  = 1
@@ -245,9 +245,9 @@ buttonCircle.addOnPress(() =>    { shape = "circle" })
 buttonRectangle.addOnPress(() => { shape = "rectangle" })
 buttonTriangle.addOnPress(() =>  { shape = "triangle" })
 
-shapesPanel.appendChild(buttonCircle.domElement)
-shapesPanel.appendChild(buttonRectangle.domElement)
-shapesPanel.appendChild(buttonTriangle.domElement)
+shapesPanelDiv.appendChild(buttonCircle.domElement)
+shapesPanelDiv.appendChild(buttonRectangle.domElement)
+shapesPanelDiv.appendChild(buttonTriangle.domElement)
 
 let operationsButtonPanel = new ButtonPanel()
 let buttonMerge           = operationsButtonPanel.addButton("merge")
@@ -256,9 +256,9 @@ let buttonIntersect       = operationsButtonPanel.addButton("intersect")
 
 let operation = null
 
-operationsPanel.appendChild(buttonMerge.domElement)
-operationsPanel.appendChild(buttonSubtract.domElement)
-operationsPanel.appendChild(buttonIntersect.domElement)
+operationsPanelDiv.appendChild(buttonMerge.domElement)
+operationsPanelDiv.appendChild(buttonSubtract.domElement)
+operationsPanelDiv.appendChild(buttonIntersect.domElement)
 
 buttonMerge.addOnPress(() =>      { operation = "merge" })
 buttonSubtract.addOnPress(() =>   { operation = "subtract" })
@@ -309,17 +309,18 @@ canvas.addEventListener('mousemove', function(e) {
     }
 })
 
+let historyButtonPanel         = new ButtonPanel()
 let historyButtonNumber        = 0
 let figureNumber               = 0
 let operationNumber            = 1 
 function addHistoryButton() {
-    let historyButton          = new Button("operation " + operationNumber,"history")
+    let historyButton          = historyButtonPanel.addButton("operation " + operationNumber,"history")
+    historyButton.press()
     let currentOperationNumber = operationNumber
     historyButton.addOnPress(() => {
         drawingAllShapes(currentOperationNumber)
     })
-    historyButton.press()
-    historyButtonPanel.appendChild(historyButton.domElement)
+    historyButtonPanelDiv.appendChild(historyButton.domElement)
     operationNumber            = operationNumber + 1
     historyButtonNumber        = historyButtonNumber + 1
 }
