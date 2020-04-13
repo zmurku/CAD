@@ -304,10 +304,10 @@ let localFigureDescription = 0
 
 function formatNumber(num) {
     if(num%1 === 0){
-			return num+".0"
+            return num+".0"
     } else {
-			return num.toString()
-    }	
+            return num.toString()
+    }    
 }
 
 
@@ -324,11 +324,11 @@ canvas.addEventListener('mouseup', function(e) {
 
 canvas.addEventListener('mousemove', function(e) {
     if(mouse.isDown) {
-    		mouse.distX    = e.offsetX - mouseClickPositionX
-			mouse.distY    = (canvasHeight - e.offsetY) - mouseClickPositionY
-			let distanceXY = (Math.sqrt(mouse.distX*mouse.distX + mouse.distY*mouse.distY))
+            mouse.distX    = e.offsetX - mouseClickPositionX
+            mouse.distY    = (canvasHeight - e.offsetY) - mouseClickPositionY
+            let distanceXY = (Math.sqrt(mouse.distX*mouse.distX + mouse.distY*mouse.distY))
         clickDistance  = distanceXY 
-			addNewOperation(false)
+            addNewOperation(false)
     }
 })
 
@@ -443,7 +443,7 @@ function drawingAllShapes(shapeNumber) {
             fragmentShader:fragmentShader2,extensions})
     mesh.material = material2
 
-}
+}    
 
 scene.add(mesh)
 
