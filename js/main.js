@@ -13,13 +13,13 @@ renderer.setSize(canvasWidth,canvasHeight)
 let scene = new THREE.Scene()
 let geometry = new THREE.BufferGeometry()
 let vertices = new Float32Array([
-	-1.0, -1.0,  0.0,
-	 1.0, -1.0,  0.0,
-	 1.0,  1.0,  0.0,
+    -1.0, -1.0,  0.0,
+     1.0, -1.0,  0.0,
+     1.0,  1.0,  0.0,
 
-	 1.0,  1.0,  0.0,
-	-1.0,  1.0,  0.0,
-	-1.0, -1.0,  0.0
+     1.0,  1.0,  0.0,
+    -1.0,  1.0,  0.0,
+    -1.0, -1.0,  0.0
 ])
 let itemsPerElement = 3
 geometry.setAttribute('position', new THREE.BufferAttribute(vertices,itemsPerElement))
@@ -34,11 +34,11 @@ let aspectRatio        = window.innerWidth / window.innerHeight
 let nearClippingPlane  = 1
 let farClippingPlane   = 500
 let camera             = new THREE.PerspectiveCamera(fieldOfViewDegrees, aspectRatio, 
-	nearClippingPlane, farClippingPlane) 
+    nearClippingPlane, farClippingPlane) 
 camera.position.set(0, 0, 100)
 camera.lookAt(0, 0, 0);
 
-
+    
 
 // ============
 // === GLSL ===
@@ -47,11 +47,11 @@ camera.lookAt(0, 0, 0);
 let vertexShader = `
 varying vec2 currentPixelPosition;
 void main() {
-	vec3 position2 = position + vec3(1.0,1.0,0.0);
-	currentPixelPosition.x = position2.x / 2.0;
-	currentPixelPosition.y = position2.y / 2.0;
-	currentPixelPosition = currentPixelPosition * ${canvasWidth}.0;
-	// Contains the position of the current vertex.
+    vec3 position2 = position + vec3(1.0,1.0,0.0);
+    currentPixelPosition.x = position2.x / 2.0;
+    currentPixelPosition.y = position2.y / 2.0;
+    currentPixelPosition = currentPixelPosition * ${canvasWidth}.0;
+    // Contains the position of the current vertex.
     gl_Position = vec4(position.x,position.y,position.z,1.0); 
 }
 `
@@ -67,14 +67,14 @@ precision mediump float;
 // Returns distance between 'samplePosition' and the border of circle placed at theo rigin (0,0). 
 // Insid it's < 0. Outside it's > 0.
 float distanceToCircle(vec2 samplePosition, float radius){
-	float distanceFromCenter = length(samplePosition);
- 	float distanceFromBorder = distanceFromCenter - radius;
+    float distanceFromCenter = length(samplePosition);
+     float distanceFromBorder = distanceFromCenter - radius;
     return distanceFromBorder;
 }
 // Returns distance between 'samplePosition' and the border of rectangle placed at the origin (0,0). 
 // Insid it's < 0. Outside it's > 0.
 float distanceToRectangle(vec2 samplePosition, vec2 size){
-	vec2 halfSize= size / 2.0;
+    vec2 halfSize= size / 2.0;
     vec2 componentWiseEdgeDistance = abs(samplePosition) - halfSize;
     float outsideDistance = length(max(componentWiseEdgeDistance, 0.0));
     float insideDistance = min(max(componentWiseEdgeDistance.x, componentWiseEdgeDistance.y), 0.0);
@@ -113,63 +113,54 @@ float grow(float distance, float size){
     return distance - size;
 }
 vec2 repeatX(vec2 position, float distance) {
-	float x = mod(position.x, distance);
-	float y = position.y;
-	return vec2(x, y);
+    float x = mod(position.x, distance);
+    float y = position.y;
+    return vec2(x, y);
 }
 vec2 repeatY(vec2 position, float distance) {
-	float y = mod(position.y, distance);
-	float x = position.x;
-	return vec2(x, y);
+    float y = mod(position.y, distance);
+    float x = position.x;
+    return vec2(x, y);
 }
 vec2 translate(vec2 samplePosition, vec2 offset){
-	return samplePosition - offset;
+    return samplePosition - offset;
 }
 vec2 rotate(vec2 samplePosition, float rotation){
     const float PI = 3.14159;
     float angle = rotation * PI * 2.0 * -1.0;
-	float sine = sin(angle);
-	float cosine = cos(angle);
-	float x      = cosine * samplePosition.x + sine * samplePosition.y;
-	float y      = cosine * samplePosition.y - sine * samplePosition.x;
+    float sine = sin(angle);
+    float cosine = cos(angle);
+    float x      = cosine * samplePosition.x + sine * samplePosition.y;
+    float y      = cosine * samplePosition.y - sine * samplePosition.x;
     return vec2(x,y);
 }
 vec2 scale(vec2 samplePosition, float scale){
     return samplePosition / scale;
 }
 float grid_distance(vec2 position) {
-	vec2 repPositionX = repeatX(position, 20.0);
-	vec2 repPositionY = repeatY(position, 20.0);
-	vec2 repPositionX5 = repeatX(position, 100.0);
-	vec2 repPositionY5 = repeatY(position, 100.0);
-	float lineVertical   = distanceToLineVertical(repPositionX, vec2(1.0, 0.0));
-	float lineHorizontal = distanceToLineHorizontal(repPositionY, vec2(0.0, 1.0));
-	float lineVertical5   = distanceToLineVertical5(repPositionX5, vec2(2.0, 0.0));
-	float lineHorizontal5 = distanceToLineHorizontal5(repPositionY5, vec2(0.0, 2.0));
-	float add = merge(lineVertical, lineHorizontal);
-	float add5 = merge(lineVertical5, lineHorizontal5);
-	float addaddXD = merge(add, add5);
-	return addaddXD;
+    vec2 repPositionX = repeatX(position, 20.0);
+    vec2 repPositionY = repeatY(position, 20.0);
+    vec2 repPositionX5 = repeatX(position, 100.0);
+    vec2 repPositionY5 = repeatY(position, 100.0);
+    float lineVertical   = distanceToLineVertical(repPositionX, vec2(1.0, 0.0));
+    float lineHorizontal = distanceToLineHorizontal(repPositionY, vec2(0.0, 1.0));
+    float lineVertical5   = distanceToLineVertical5(repPositionX5, vec2(2.0, 0.0));
+    float lineHorizontal5 = distanceToLineHorizontal5(repPositionY5, vec2(0.0, 2.0));
+    float add = merge(lineVertical, lineHorizontal);
+    float add5 = merge(lineVertical5, lineHorizontal5);
+    float addaddXD = merge(add, add5);
+    return addaddXD;
 }
 float render (float distance) {
-	float distanceChange = fwidth(distance) * 0.5;
-	float antialiasedCutoff = smoothstep(distanceChange, -distanceChange, distance);
-	return antialiasedCutoff;
+    float distanceChange = fwidth(distance) * 0.5;
+    float antialiasedCutoff = smoothstep(distanceChange, -distanceChange, distance);
+    return antialiasedCutoff;
 }
 vec4 grid(vec2 position) {
-	float distance = grid_distance(position);
-	float alpha    = render(distance);
-	return vec4(1.0, 1.0, 1.0, alpha*0.08);
+    float distance = grid_distance(position);
+    float alpha    = render(distance);
+    return vec4(1.0, 1.0, 1.0, alpha*0.08);
 }
-// float figure_part_0(vec2 position) {
-// 	vec2 position2 = translate(position, vec2(150.0, 0.0));
-// 	float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
-// 	float circle = distanceToCircle(position, 150.0);
-// 	float sub = subtract(rectangle, circle);
-// 	float growth = grow(sub, 3.0);
-// 	float sub2 = subtract(growth, sub);
-// 	return sub2;
-// }
 `
 let fragmentShaderColorFigure = `
 vec4 colorFigure(vec2 position) {
@@ -182,47 +173,47 @@ return vec4(1.0, 1.0, 1.0, alpha);
 `
 let fragmentShaderEnding = `
 float background(vec2 position) {
-	float rectangle = distanceToRectangle(position, vec2(${canvasWidth}.0, ${canvasHeight}.0));
-	return rectangle;
+    float rectangle = distanceToRectangle(position, vec2(${canvasWidth}.0, ${canvasHeight}.0));
+    return rectangle;
 }
 vec4 mix_colors(vec4 background, vec4 foreground) {
-	vec4 p_foreground = foreground * foreground.a;
-	vec4 p_background = background * background.a;
-	vec4 p_cd = (1.0 - foreground.a) * p_background + p_foreground;
-	vec4 cd   = p_cd / p_cd.a;
-	return cd;
+    vec4 p_foreground = foreground * foreground.a;
+    vec4 p_background = background * background.a;
+    vec4 p_cd = (1.0 - foreground.a) * p_background + p_foreground;
+    vec4 cd   = p_cd / p_cd.a;
+    return cd;
 }
 vec4 layer1(vec2 position) {
-	return vec4(0.03, 0.15, 0.26, 1.0);
+    return vec4(0.03, 0.15, 0.26, 1.0);
 }
 vec4 layer2(vec2 position) {
-	vec4 background = layer1(position);
-	vec4 foreground = grid(position);
-	vec4 add = mix_colors(background, foreground);
-	return add;
+    vec4 background = layer1(position);
+    vec4 foreground = grid(position);
+    vec4 add = mix_colors(background, foreground);
+    return add;
 }
 vec4 layer3(vec2 position) {
-	vec4 grid = layer2(position);
-	vec4 figure = colorFigure(position);
-	vec4 add = mix_colors(grid, figure);
-	return add;
+    vec4 grid = layer2(position);
+    vec4 figure = colorFigure(position);
+    vec4 add = mix_colors(grid, figure);
+    return add;
 }
 // Execute for every pixel.
 void main() {
-	gl_FragColor = layer3(currentPixelPosition);
+    gl_FragColor = layer3(currentPixelPosition);
 }
 `
 let figureDescription = `
 float figure_part_0(vec2 position) {
-	vec2 position2 = translate(position, vec2(${canvasWidth*2}.0, ${canvasHeight*2}.0));
-	float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
-	return rectangle;
+    vec2 position2 = translate(position, vec2(${canvasWidth*2}.0, ${canvasHeight*2}.0));
+    float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
+    return rectangle;
 }
 `
 
 let fragmentShader = fragmentShaderHeader + figureDescription + fragmentShaderColorFigure + 
-	fragmentShaderEnding 
-	
+    fragmentShaderEnding 
+    
 
 
 
@@ -232,9 +223,9 @@ let fragmentShader = fragmentShaderHeader + figureDescription + fragmentShaderCo
 // =============
 
 let mouse = {
-	isDown: false,
-	distX: 0, 
-	distY: 0
+    isDown: false,
+    distX: 0, 
+    distY: 0
 }
 
 
@@ -253,18 +244,18 @@ let buttonRectangle = shapesButtonPanel.addButton("rectangle")
 let buttonTriangle = shapesButtonPanel.addButton("triangle")
 
 buttonCircle.addOnPress(() => {
-	buttonRectangle.release()
-	buttonTriangle.release()
+    buttonRectangle.release()
+    buttonTriangle.release()
 })
 
 buttonRectangle.addOnPress(() => {
-	buttonCircle.release()
-	buttonTriangle.release()
+    buttonCircle.release()
+    buttonTriangle.release()
 })
 
 buttonTriangle.addOnPress(() => {
-	buttonRectangle.release()
-	buttonCircle.release()
+    buttonRectangle.release()
+    buttonCircle.release()
 })
 
 shapesPanel.appendChild(buttonCircle.domElement)
@@ -276,18 +267,18 @@ let buttonSubtract  = new Button("subtract")
 let buttonIntersect = new Button("intersect")
 
 buttonMerge.addOnPress(() => {
-	buttonSubtract.release()
-	buttonIntersect.release()
+    buttonSubtract.release()
+    buttonIntersect.release()
 })
 
 buttonIntersect.addOnPress(() => {
-	buttonSubtract.release()
-	buttonMerge.release()
+    buttonSubtract.release()
+    buttonMerge.release()
 })
 
 buttonSubtract.addOnPress(() => {
-	buttonMerge.release()
-	buttonIntersect.release()
+    buttonMerge.release()
+    buttonIntersect.release()
 })
 
 operationsPanel.appendChild(buttonMerge.domElement)
@@ -297,7 +288,7 @@ operationsPanel.appendChild(buttonIntersect.domElement)
 
 
 let extensions = {
-	derivatives: true
+    derivatives: true
 }
 
 
@@ -312,154 +303,154 @@ let clickDistance          = 0
 let localFigureDescription = 0
 
 function formatNumber(num) {
-	if(num%1 === 0){
-		return num+".0"
-	} else {
-		return num.toString()
-	}	
+    if(num%1 === 0){
+			return num+".0"
+    } else {
+			return num.toString()
+    }	
 }
 
 
 canvas.addEventListener('mousedown', function(e) {
-	mouseClickPositionX = e.offsetX
-	mouseClickPositionY = canvasHeight - e.offsetY 
-	mouse.isDown = true
+    mouseClickPositionX = e.offsetX
+    mouseClickPositionY = canvasHeight - e.offsetY 
+    mouse.isDown = true
 })
 
 canvas.addEventListener('mouseup', function(e) {
-	mouse.isDown = false
-	addNewOperation(true)
+    mouse.isDown = false
+    addNewOperation(true)
 })
 
 canvas.addEventListener('mousemove', function(e) {
     if(mouse.isDown) {
-		mouse.distX    = e.offsetX - mouseClickPositionX
-		mouse.distY    = (canvasHeight - e.offsetY) - mouseClickPositionY
-		let distanceXY = (Math.sqrt(mouse.distX*mouse.distX + mouse.distY*mouse.distY))
-		clickDistance  = distanceXY 
-		addNewOperation(false)
-	}
+    		mouse.distX    = e.offsetX - mouseClickPositionX
+			mouse.distY    = (canvasHeight - e.offsetY) - mouseClickPositionY
+			let distanceXY = (Math.sqrt(mouse.distX*mouse.distX + mouse.distY*mouse.distY))
+        clickDistance  = distanceXY 
+			addNewOperation(false)
+    }
 })
 
 let historyButtonNumber        = 0
 let figureNumber               = 0
 let operationNumber            = 1 
 function addHistoryButton() {
-	let historyButton          = new Button("operation " + operationNumber,"history")
-	let currentOperationNumber = operationNumber
-	historyButton.addOnPress(() => {
-		drawingAllShapes(currentOperationNumber)
-	})
-	historyButton.press()
-	historyButtonPanel.appendChild(historyButton.domElement)
-	operationNumber            = operationNumber + 1
-	historyButtonNumber        = historyButtonNumber + 1
+    let historyButton          = new Button("operation " + operationNumber,"history")
+    let currentOperationNumber = operationNumber
+    historyButton.addOnPress(() => {
+        drawingAllShapes(currentOperationNumber)
+    })
+    historyButton.press()
+    historyButtonPanel.appendChild(historyButton.domElement)
+    operationNumber            = operationNumber + 1
+    historyButtonNumber        = historyButtonNumber + 1
 }
 
 
 function addNewOperation(doKeep) {
-	let size = 0
-	let invalidInput = !shape || !operation
-	if(invalidInput) return  
+    let size = 0
+    let invalidInput = !shape || !operation
+    if(invalidInput) return  
 
-	let nextFigureDesctiption = null
+    let nextFigureDesctiption = null
     let x = mouseClickPositionX
-	let y = mouseClickPositionY
-	
-	size = formatNumber(clickDistance)
+    let y = mouseClickPositionY
+    
+    size = formatNumber(clickDistance)
 
-	let width  = Math.abs(mouse.distX)
-	let height = Math.abs(mouse.distY)
-	let rectX  = mouseClickPositionX + width/2
-	let rectY  = mouseClickPositionY + height/2
+    let width  = Math.abs(mouse.distX)
+    let height = Math.abs(mouse.distY)
+    let rectX  = mouseClickPositionX + width/2
+    let rectY  = mouseClickPositionY + height/2
 
-	if(mouse.distY < 0) { rectY = rectY - height }
-	if(mouse.distX < 0) { rectX = rectX - width }
-		
-	if(shape === "circle" && doKeep) { 
-		nextFigureDesctiption = `
-			float figure_part_${nextFigureNumber}(vec2 position) {
-			vec2 position2 = translate(position,vec2(${x},${y}));
-			float circle = distanceToCircle(position2, ${size});
-			float old = figure_part_${nextFigureNumber-1}(position);
-			float sub = ${operation}(old, circle);
-			return sub;
-		}`
-		lastFigure = `figure_part_${nextFigureNumber}(position);`
-		figureNumber = figureNumber + 1
-		addHistoryButton()
-		
-	} else if(shape === "circle" && !doKeep) {
-		nextFigureDesctiption = `
-				float figure_part_${nextFigureNumber}(vec2 position) {
-				vec2 position2 = translate(position,vec2(${x},${y}));
-				float circle = distanceToCircle(position2, ${size});
-				float old = ${lastFigure};
-				float sub = ${operation}(old, circle);
-				return sub;
-			}`	
-			
-	} else if(shape === "rectangle" && doKeep) { 
-		nextFigureDesctiption = `
-			float figure_part_${nextFigureNumber}(vec2 position) {
-			vec2 position2 = translate(position,vec2(${rectX},${rectY}));
-			float rectangle = distanceToRectangle(position2, vec2(${width}, ${height}));
-			float old = figure_part_${nextFigureNumber-1}(position);
-			float sub = ${operation}(old, rectangle);
-			return sub;
-		}`		
-		lastFigure = `figure_part_${nextFigureNumber}(position);`
-		addHistoryButton()
-		
+    if(mouse.distY < 0) { rectY = rectY - height }
+    if(mouse.distX < 0) { rectX = rectX - width }
+
+    if(shape === "circle" && doKeep) { 
+            nextFigureDesctiption = `
+            float figure_part_${nextFigureNumber}(vec2 position) {
+            vec2 position2 = translate(position,vec2(${x},${y}));
+            float circle = distanceToCircle(position2, ${size});
+            float old = figure_part_${nextFigureNumber-1}(position);
+            float sub = ${operation}(old, circle);
+            return sub;
+            }`
+            lastFigure = `figure_part_${nextFigureNumber}(position);`
+            figureNumber = figureNumber + 1
+            addHistoryButton()
+
+    } else if(shape === "circle" && !doKeep) {
+            nextFigureDesctiption = `
+                float figure_part_${nextFigureNumber}(vec2 position) {
+                vec2 position2 = translate(position,vec2(${x},${y}));
+                float circle = distanceToCircle(position2, ${size});
+                float old = ${lastFigure};
+                float sub = ${operation}(old, circle);
+                return sub;
+            }`    
+            
+    } else if(shape === "rectangle" && doKeep) { 
+            nextFigureDesctiption = `
+            float figure_part_${nextFigureNumber}(vec2 position) {
+            vec2 position2 = translate(position,vec2(${rectX},${rectY}));
+            float rectangle = distanceToRectangle(position2, vec2(${width}, ${height}));
+            float old = figure_part_${nextFigureNumber-1}(position);
+            float sub = ${operation}(old, rectangle);
+            return sub;
+            }`        
+            lastFigure = `figure_part_${nextFigureNumber}(position);`
+            addHistoryButton()
+
 
     } else if(shape === "rectangle" && !doKeep) {
-		nextFigureDesctiption = `
-				float figure_part_${nextFigureNumber}(vec2 position) {
-				vec2 position2 = translate(position,vec2(${rectX},${rectY}));
-				float rectangle = distanceToRectangle(position2, vec2(${width}, ${height}));
-				float old = ${lastFigure};
-				float sub = ${operation}(old, rectangle);
-				return sub;
-			}`				
-	}
+            nextFigureDesctiption = `
+                float figure_part_${nextFigureNumber}(vec2 position) {
+                vec2 position2 = translate(position,vec2(${rectX},${rectY}));
+                float rectangle = distanceToRectangle(position2, vec2(${width}, ${height}));
+                float old = ${lastFigure};
+                float sub = ${operation}(old, rectangle);
+                return sub;
+            }`                
+    }
 
 
-	localFigureDescription = figureDescription + nextFigureDesctiption
+    localFigureDescription = figureDescription + nextFigureDesctiption
 
     if(doKeep) {
-		nextFigureNumber += 1
-		figureDescription = localFigureDescription
-	}
+            nextFigureNumber += 1
+            figureDescription = localFigureDescription
+    }
 
-	drawingAllShapes(operationNumber - 1)
+    drawingAllShapes(operationNumber - 1)
 
 }
 
 function drawingAllShapes(shapeNumber) {
-	let codeForTranslatingAllShapesToColor = `
-		vec4 colorFigure(vec2 position) {
-			float distance = figure_part_${shapeNumber}(position);
-			float distance_outer= grow(distance,3.0);
-			float border = subtract(distance_outer,distance);
-			float alpha    = render(border);
-			return vec4(1.0, 1.0, 1.0, alpha);
-			}
-		`
+    let codeForTranslatingAllShapesToColor = `
+        vec4 colorFigure(vec2 position) {
+            float distance = figure_part_${shapeNumber}(position);
+            float distance_outer= grow(distance,3.0);
+            float border = subtract(distance_outer,distance);
+            float alpha    = render(border);
+            return vec4(1.0, 1.0, 1.0, alpha);
+            }
+                `
 
-	let fragmentShader2 = fragmentShaderHeader + localFigureDescription + 
-		codeForTranslatingAllShapesToColor + fragmentShaderEnding 
-	let material2 = new THREE.ShaderMaterial({vertexShader:vertexShader,
-		fragmentShader:fragmentShader2,extensions})
-	mesh.material = material2
+    let fragmentShader2 = fragmentShaderHeader + localFigureDescription + 
+        codeForTranslatingAllShapesToColor + fragmentShaderEnding 
+    let material2 = new THREE.ShaderMaterial({vertexShader:vertexShader,
+            fragmentShader:fragmentShader2,extensions})
+    mesh.material = material2
 
 }
 
 scene.add(mesh)
 
 function render() {
-	renderer.render(scene, camera)
-	window.requestAnimationFrame(render)
-	
+    renderer.render(scene, camera)
+    window.requestAnimationFrame(render)
+    
 }
 
 window.requestAnimationFrame(render)
