@@ -2,6 +2,7 @@ class Button {
     constructor(name) {
         this.isPressed       = false
         this.isHovered       = false 
+        this.whenReleaseRegistry = []
         this.onPressRegistry = []
         this.name            = name
         let divElement       = document.createElement("div")
@@ -30,8 +31,13 @@ class Button {
         this._updateStyle()
     }
 
+    
+
     /// Wyciska przycisk.
     release() {
+        for(let f of this.whenReleaseRegistry){
+            f()
+        }
         this.isPressed = false 
         this._updateStyle()
     }
@@ -61,6 +67,11 @@ class Button {
     addOnPress(f) {
         this.onPressRegistry.push(f)
     }    
+
+    whenRelease(f) {
+        this.whenReleaseRegistry.push(f)
+    }  
+  
 
     _updateStyle() {
         let darkBlue  = "#003B62"

@@ -235,6 +235,7 @@ let mouse = {
 
 
 let shapesButtonPanel = new ButtonPanel()
+
 let buttonCircle      = shapesButtonPanel.addButton("circle")
 let buttonRectangle   = shapesButtonPanel.addButton("rectangle")
 let buttonTriangle    = shapesButtonPanel.addButton("triangle")
@@ -244,6 +245,9 @@ let shape = null
 buttonCircle.addOnPress(() =>    { shape = "circle" })
 buttonRectangle.addOnPress(() => { shape = "rectangle" })
 buttonTriangle.addOnPress(() =>  { shape = "triangle" })
+
+buttonCircle.whenRelease(() =>    { shape = null })
+
 
 shapesPanelDiv.appendChild(buttonCircle.domElement)
 shapesPanelDiv.appendChild(buttonRectangle.domElement)
@@ -264,6 +268,8 @@ buttonMerge.addOnPress(() =>      { operation = "merge" })
 buttonSubtract.addOnPress(() =>   { operation = "subtract" })
 buttonIntersect.addOnPress(() =>  { operation = "intersect" })
 
+
+
 let extensions = {
     derivatives: true
 }
@@ -278,6 +284,7 @@ let mouseClickPositionX    = 0
 let mouseClickPositionY    = 0
 let clickDistance          = 0
 let localFigureDescription = 0
+
 
 function formatNumber(num) {
     if(num%1 === 0){
@@ -315,10 +322,10 @@ let figureNumber               = 0
 let operationNumber            = 1 
 function addHistoryButton() {
     let historyButton          = historyButtonPanel.addButton("operation " + operationNumber,"history")
-    historyButton.press()
     let currentOperationNumber = operationNumber
+    historyButton.press()
     historyButton.addOnPress(() => {
-        drawingAllShapes(currentOperationNumber)
+        drawAllShapes(currentOperationNumber)
     })
     historyButtonPanelDiv.appendChild(historyButton.domElement)
     operationNumber            = operationNumber + 1
@@ -326,12 +333,12 @@ function addHistoryButton() {
 }
 
 
-function addNewOperation(doKeep) {
 
+function addNewOperation(doKeep) {
+    console.log(shape)
     let size = 0
     let invalidInput = !shape || !operation
     if(invalidInput) return  
-
     let nextFigureDesctiption = null
     let x = mouseClickPositionX
     let y = mouseClickPositionY
@@ -401,11 +408,11 @@ function addNewOperation(doKeep) {
             figureDescription = localFigureDescription
     }
 
-    drawingAllShapes(operationNumber - 1)
+    drawAllShapes(operationNumber - 1)
 
 }
 
-function drawingAllShapes(shapeNumber) {
+function drawAllShapes(shapeNumber) {
     let codeForTranslatingAllShapesToColor = `
         vec4 colorFigure(vec2 position) {
             float distance = figure_part_${shapeNumber}(position);
