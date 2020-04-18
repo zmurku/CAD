@@ -5,37 +5,62 @@
 // =============
 
 
-let renderer = new THREE.WebGLRenderer()
-renderer.setSize(canvasWidth,canvasHeight)
-let scene    = new THREE.Scene()
-let geometry = new THREE.BufferGeometry()
-let vertices = new Float32Array([
-    -1.0, -1.0,  0.0,
-     1.0, -1.0,  0.0,
-     1.0,  1.0,  0.0,
 
-     1.0,  1.0,  0.0,
-    -1.0,  1.0,  0.0,
-    -1.0, -1.0,  0.0
-])
-let itemsPerElement       = 3
-geometry.setAttribute('position', new THREE.BufferAttribute(vertices,itemsPerElement))
-geometry.dynamic          = true
-let canvas                = document.getElementById('viewport')
-canvas.appendChild(renderer.domElement)
-let shapesPanelDiv        = document.getElementById('button-panel')  
-let operationsPanelDiv    = document.getElementById('button-panel-2') 
-let historyButtonPanelDiv = document.getElementById('history-button-panel')
-let fieldOfViewDegrees    = 45 
-let aspectRatio           = window.innerWidth / window.innerHeight
-let nearClippingPlane     = 1
-let farClippingPlane      = 500
-let camera                = new THREE.PerspectiveCamera(fieldOfViewDegrees, aspectRatio, 
-    nearClippingPlane, farClippingPlane) 
-camera.position.set(0, 0, 100)
-camera.lookAt(0, 0, 0);
+class Scene {
+    constructor() {
+        this.canvasWidth  = 600 
+        this.canvasHeight = 600
+        this.renderer = new THREE.WebGLRenderer()
+        this.renderer.setSize(this.canvasWidth, this.canvasHeight)
+        this.scene    = new THREE.Scene()
+        this.geometry = new THREE.BufferGeometry()
+        this.vertices = new Float32Array([
+            -1.0, -1.0,  0.0,
+             1.0, -1.0,  0.0,
+             1.0,  1.0,  0.0,
+        
+             1.0,  1.0,  0.0,
+            -1.0,  1.0,  0.0,
+            -1.0, -1.0,  0.0
+        ])
+        this.itemsPerElement       = 3
+        this.geometry.setAttribute('position', new THREE.BufferAttribute(this.vertices,this.itemsPerElement))
+        this.geometry.dynamic          = true
+        this.canvas                = document.getElementById('viewport')
+        this.canvas.appendChild(this.renderer.domElement)
+        this.shapesPanelDiv        = document.getElementById('button-panel')  
+        this.operationsPanelDiv    = document.getElementById('button-panel-2') 
+        this.historyButtonPanelDiv = document.getElementById('history-button-panel')
+        this.fieldOfViewDegrees    = 45 
+        this.aspectRatio           = window.innerWidth / window.innerHeight
+        this.nearClippingPlane     = 1
+        this.farClippingPlane      = 500
+        this.camera                = new THREE.PerspectiveCamera(this.fieldOfViewDegrees, this.aspectRatio, 
+                                    this.nearClippingPlane, this.farClippingPlane) 
+        this.camera.position.set(0, 0, 100)
+        this.camera.lookAt(0, 0, 0); 
+    }
 
-    
+    render() {
+        this.renderer.render(this.scene, this.camera)
+        window.requestAnimationFrame(() => this.render())
+    }
+
+}
+
+
+// zrobic klase Scene z tego wyzej tak bysmy mogli zrobic
+let scene = new Scene()
+scene.render()
+
+let extensions = {
+    derivatives: true
+}
+
+let material = new THREE.ShaderMaterial({vertexShader,fragmentShader,extensions})
+let mesh     = new THREE.Mesh(scene.geometry, material)
+scene.scene.add(mesh)
+
 // =============
 // === Mouse ===
 // =============
@@ -51,7 +76,6 @@ let mouse = {
 // === New Buttons ===
 // ===================
 
-
 let shapesButtonPanel = new ButtonPanel()
 let buttonCircle      = shapesButtonPanel.addButton("circle")
 let buttonRectangle   = shapesButtonPanel.addButton("rectangle")
@@ -66,9 +90,9 @@ buttonCircle.whenRelease(()    => { shape = null })
 buttonRectangle.whenRelease(() => { shape = null })
 buttonTriangle.whenRelease(()  => { shape = null })
 
-shapesPanelDiv.appendChild(buttonCircle.domElement)
-shapesPanelDiv.appendChild(buttonRectangle.domElement)
-shapesPanelDiv.appendChild(buttonTriangle.domElement)
+scene.shapesPanelDiv.appendChild(buttonCircle.domElement)
+scene.shapesPanelDiv.appendChild(buttonRectangle.domElement)
+scene.shapesPanelDiv.appendChild(buttonTriangle.domElement)
 
 let operationsButtonPanel = new ButtonPanel()
 let buttonMerge           = operationsButtonPanel.addButton("merge")
@@ -77,25 +101,22 @@ let buttonIntersect       = operationsButtonPanel.addButton("intersect")
 
 let operation = null
 
-operationsPanelDiv.appendChild(buttonMerge.domElement)
-operationsPanelDiv.appendChild(buttonSubtract.domElement)
-operationsPanelDiv.appendChild(buttonIntersect.domElement)
+scene.operationsPanelDiv.appendChild(buttonMerge.domElement)
+scene.operationsPanelDiv.appendChild(buttonSubtract.domElement)
+scene.operationsPanelDiv.appendChild(buttonIntersect.domElement)
 
 buttonMerge.addOnPress(()     =>  { operation = "merge" })
 buttonSubtract.addOnPress(()  =>  { operation = "subtract" })
 buttonIntersect.addOnPress(() =>  { operation = "intersect" })
 
-let extensions = {
-    derivatives: true
-}
 
-let material = new THREE.ShaderMaterial({vertexShader,fragmentShader,extensions})
-let mesh     = new THREE.Mesh(geometry, material)
+
  
 
 // ===============
 // === HISTORY ===
 // ===============
+
 
 let mouseClickPositionX = 0
 let mouseClickPositionY = 0
@@ -111,17 +132,56 @@ function addHistoryButton() {
     historyButton.addOnPress(() => {
         view.drawAllShapes(currentOperationNumber)
     })
-    historyButtonPanelDiv.appendChild(historyButton.domElement)
+    scene.historyButtonPanelDiv.appendChild(historyButton.domElement)
     operationNumber     = operationNumber + 1
     historyButtonNumber = historyButtonNumber + 1
 }
 
-scene.add(mesh)
 
-function render() {
-    renderer.render(scene, camera)
-    window.requestAnimationFrame(render)
+
+// to wyzej do klasy HistoryPanel
+// let historyPanel = new HistoryPanel()
+
+
+
+
+window.requestAnimationFrame(() => scene.render)
+
+
+
+
+
+
+// -------------------------------------------
+
+class Person {
+    constructor(name) {
+        this.name = name
+    }
+
+    sayHello() {
+        console.log("Hi, my name is ", this.name)
+    }
 }
 
-window.requestAnimationFrame(render)
+
+let zuzia = new Person("Zuzia")
+
+function callSayHello(t) {
+    t.sayHello()
+}
+
+function callMe(f) {
+    f()
+}
+
+console.log("---------------")
+zuzia.sayHello()
+callSayHello(zuzia)
+// callMe(zuzia.sayHello) // NIE DZIALA
+callMe(function() { zuzia.sayHello() })
+callMe(() => { zuzia.sayHello() })
+callMe(zuzia.sayHello.bind(zuzia))
+console.log("---------------")
+
 

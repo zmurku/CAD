@@ -182,6 +182,3 @@ float figure_part_0(vec2 position) {
 
 let fragmentShader = fragmentShaderHeader + figureDescription + fragmentShaderColorFigure + 
     fragmentShaderEnding 
-    
-
-

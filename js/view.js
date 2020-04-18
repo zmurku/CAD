@@ -5,23 +5,23 @@ class View {
         this.lastFigure             = `figure_part_0(position)`   
         this.localFigureDescription = 0
 
-        canvas.addEventListener('mousedown', function(e) {
+        scene.canvas.addEventListener('mousedown', function(e) {
             mouseClickPositionX = e.offsetX
             mouseClickPositionY = canvasHeight - e.offsetY 
             mouse.isDown        = true
         })
 
-        canvas.addEventListener('mouseup', (e) => {
+        scene.canvas.addEventListener('mouseup', (e) => {
             mouse.isDown = false
             this.addNewOperation(true)
         })
 
-        canvas.addEventListener('mousemove', (e) => {
+        scene.canvas.addEventListener('mousemove', (e) => {
             if(mouse.isDown) {
                     mouse.distX    = e.offsetX - mouseClickPositionX
                     mouse.distY    = (canvasHeight - e.offsetY) - mouseClickPositionY
                     let distanceXY = (Math.sqrt(mouse.distX*mouse.distX + mouse.distY*mouse.distY))
-                    clickDistance  = distanceXY 
+                    this.clickDistance  = distanceXY 
                     this.addNewOperation(false)
             }
         })        
@@ -48,7 +48,6 @@ class View {
     
     
     addNewOperation(doKeep) {
-        console.log(shape)
         let size = 0
         let invalidInput = !shape || !operation
         if (invalidInput) return  
@@ -59,7 +58,7 @@ class View {
         let height = Math.abs(mouse.distY)
         let rectX  = mouseClickPositionX + width/2
         let rectY  = mouseClickPositionY + height/2
-        size = formatNumber(clickDistance)
+        size = formatNumber(this.clickDistance)
 
         if(mouse.distY < 0) { rectY = rectY - height }
         if(mouse.distX < 0) { rectX = rectX - width }

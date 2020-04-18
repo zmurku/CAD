@@ -31,8 +31,6 @@ class Button {
         this._updateStyle()
     }
 
-    
-
     /// Wyciska przycisk.
     release() {
         for(let f of this.whenReleaseRegistry){
