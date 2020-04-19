@@ -23,7 +23,7 @@ class Button {
         
     /// Wciska przycisk i wykonuje wszystkie callbaci zarejestrowane w `onPressRegistry`.
     press() {
-        // dla kazdej funkcji `f`, bedacej elementem `onPressRegistry` wykonuje ja.
+        // Dla kazdej funkcji `f`, bedacej elementem `onPressRegistry` wykonuje ją.
         for(let f of this.onPressRegistry){
             f()
         }

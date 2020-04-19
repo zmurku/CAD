@@ -1,6 +1,6 @@
 
 class Menu {
-    constructor() {
+    constructor(scene) {
         this.shapesButtonPanel = new ButtonPanel()
         this.buttonCircle      = this.shapesButtonPanel.addButton("circle")
         this.buttonRectangle   = this.shapesButtonPanel.addButton("rectangle")
@@ -38,4 +38,4 @@ class Menu {
     }
 }
 
-let menu = new Menu() // zle miejsce
+

@@ -1,11 +1,13 @@
 
 // todo: klasa zamiast obiektu:
-
-let mouse = {
-    ClickPositionX: 0,
-    ClickPositionY: 0,
-    clickDistance:  0,
-    isDown: false,
-    distX:  0, 
-    distY:  0
+class Mouse {
+    constructor() {
+        this.clickPositionX = 0
+        this.clickPositionY = 0
+        this.clickDistance  = 0
+        this.isDown         = false
+        this.distX          = 0
+        this.distY          = 0
+    }
 }
+

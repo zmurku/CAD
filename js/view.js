@@ -1,28 +1,32 @@
 
 class View {
-    constructor() {
+    constructor(scene,menu) {
+        this.scene = scene
+        this.menu = menu
         this.nextFigureNumber       = 1 
         this.lastFigure             = `figure_part_0(position)`   
         this.localFigureDescription = 0
+        this.mouse = new Mouse()
+        this.history = new History()
 
-        scene.canvas.addEventListener('mousedown', function(e) {
-            mouse.clickPositionX = e.offsetX
-            mouse.ClickPositionY = canvasHeight - e.offsetY 
-            mouse.isDown        = true
+        scene.canvas.addEventListener('mousedown', (e) => {
+            this.mouse.clickPositionX = e.offsetX
+            this.mouse.clickPositionY = scene.myCanvas.height - e.offsetY 
+            this.mouse.isDown         = true
         })
 
         scene.canvas.addEventListener('mouseup', (e) => {
-            mouse.isDown = false
+            this.mouse.isDown = false
             this.addNewOperation(true)
         })
 
         scene.canvas.addEventListener('mousemove', (e) => {
-            if(mouse.isDown) {
-                    mouse.distX    = e.offsetX - mouse.clickPositionX
-                    mouse.distY    = (canvasHeight - e.offsetY) - mouse.ClickPositionY
-                    let distanceXY = (Math.sqrt(mouse.distX*mouse.distX + mouse.distY*mouse.distY))
-                    this.clickDistance  = distanceXY 
-                    this.addNewOperation(false)
+            if(this.mouse.isDown) {
+                this.mouse.distX    = e.offsetX - this.mouse.clickPositionX
+                this.mouse.distY    = (scene.myCanvas.height - e.offsetY) - this.mouse.clickPositionY
+                let distanceXY = (Math.sqrt(this.mouse.distX*this.mouse.distX + this.mouse.distY*this.mouse.distY))
+                this.clickDistance  = distanceXY 
+                this.addNewOperation(false)
             }
         })        
     }
@@ -37,89 +41,91 @@ class View {
                 return vec4(1.0, 1.0, 1.0, alpha);
                 }
                     `
+        let extensions = {
+            derivatives: true
+            }             
     
-        let fragmentShader2 = fragmentShaderHeader + this.localFigureDescription + 
-                              codeForTranslatingAllShapesToColor + fragmentShaderEnding 
-        let material2       = new THREE.ShaderMaterial({vertexShader:vertexShader,
+        let fragmentShader2 = this.scene.glsl.fragmentShaderHeader + this.localFigureDescription + 
+                              codeForTranslatingAllShapesToColor + this.scene.glsl.fragmentShaderEnding 
+        let material2       = new THREE.ShaderMaterial({vertexShader:this.scene.glsl.vertexShader,
                               fragmentShader:fragmentShader2,extensions})
-        mesh.material       = material2
+        this.scene.mesh.material       = material2
     
     } 
     
     
     addNewOperation(doKeep) {
         let size = 0
-        let invalidInput = !menu.selectedShape || !menu.selectedOperation
+        let invalidInput = !this.menu.selectedShape || !this.menu.selectedOperation
         if (invalidInput) return  
         let nextFigureDesctiption = null
-        let x = mouse.clickPositionX
-        let y = mouse.ClickPositionY
-        let width  = Math.abs(mouse.distX)
-        let height = Math.abs(mouse.distY)
-        let rectX  = mouse.clickPositionX + width/2
-        let rectY  = mouse.ClickPositionY + height/2
+        let x = this.mouse.clickPositionX
+        let y = this.mouse.clickPositionY
+        let width  = Math.abs(this.mouse.distX)
+        let height = Math.abs(this.mouse.distY)
+        let rectX  = this.mouse.clickPositionX + width/2
+        let rectY  = this.mouse.clickPositionY + height/2
         size = formatNumber(this.clickDistance)
 
-        if(mouse.distY < 0) { rectY = rectY - height }
-        if(mouse.distX < 0) { rectX = rectX - width }
+        if(this.mouse.distY < 0) { rectY = rectY - height }
+        if(this.mouse.distX < 0) { rectX = rectX - width }
 
-        if(menu.selectedShape === "circle" && doKeep) { 
+        if(this.menu.selectedShape === "circle" && doKeep) { 
             nextFigureDesctiption = `
                 float figure_part_${this.nextFigureNumber}(vec2 position) {
                 vec2 position2 = translate(position,vec2(${x},${y}));
                 float circle = distanceToCircle(position2, ${size});
                 float old = figure_part_${this.nextFigureNumber-1}(position);
-                float sub = ${menu.selectedOperation}(old, circle);
+                float sub = ${this.menu.selectedOperation}(old, circle);
                 return sub;
                 }`
             this.lastFigure = `figure_part_${this.nextFigureNumber}(position);`
-            history.addHistoryButton()
+            this.history.addHistoryButton()
 
-        } else if(menu.selectedShape === "circle" && !doKeep) {
+        } else if(this.menu.selectedShape === "circle" && !doKeep) {
             nextFigureDesctiption = `
                 float figure_part_${this.nextFigureNumber}(vec2 position) {
                 vec2 position2 = translate(position,vec2(${x},${y}));
                 float circle = distanceToCircle(position2, ${size});
                 float old = ${this.lastFigure};
-                float sub = ${menu.selectedOperation}(old, circle);
+                float sub = ${this.menu.selectedOperation}(old, circle);
                 return sub;
                 }`    
                 
-        } else if(menu.selectedShape === "rectangle" && doKeep) { 
+        } else if(this.menu.selectedShape === "rectangle" && doKeep) { 
             nextFigureDesctiption = `
                 float figure_part_${this.nextFigureNumber}(vec2 position) {
                 vec2 position2 = translate(position,vec2(${rectX},${rectY}));
                 float rectangle = distanceToRectangle(position2, vec2(${width}, ${height}));
                 float old = figure_part_${this.nextFigureNumber-1}(position);
-                float sub = ${menu.selectedOperation}(old, rectangle);
+                float sub = ${this.menu.selectedOperation}(old, rectangle);
                 return sub;
                 }`        
             this.lastFigure = `figure_part_${this.nextFigureNumber}(position);`
-            history.addHistoryButton()
+            this.history.addHistoryButton()
 
 
-        } else if(menu.selectedShape === "rectangle" && !doKeep) {
+        } else if(this.menu.selectedShape === "rectangle" && !doKeep) {
             nextFigureDesctiption = `
                 float figure_part_${this.nextFigureNumber}(vec2 position) {
                 vec2 position2 = translate(position,vec2(${rectX},${rectY}));
                 float rectangle = distanceToRectangle(position2, vec2(${width}, ${height}));
                 float old = ${this.lastFigure};
-                float sub = ${menu.selectedOperation}(old, rectangle);
+                float sub = ${this.menu.selectedOperation}(old, rectangle);
                 return sub;
                 }`                
         }
 
 
-        this.localFigureDescription = figureDescription + nextFigureDesctiption
+        this.localFigureDescription = this.scene.glsl.figureDescription + nextFigureDesctiption
 
         if(doKeep) {
             this.nextFigureNumber += 1
-            figureDescription = this.localFigureDescription
+            this.scene.glsl.figureDescription = this.localFigureDescription
         }
 
-        view.drawAllShapes(history.operationNumber - 1)
+        this.drawAllShapes(this.history.operationNumber - 1)
 
     }
 }
 
-let view = new View()
