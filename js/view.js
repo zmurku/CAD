@@ -49,7 +49,7 @@ class View {
     
     addNewOperation(doKeep) {
         let size = 0
-        let invalidInput = !menu.shape || !menu.operation
+        let invalidInput = !menu.selectedShape || !menu.selectedOperation
         if (invalidInput) return  
         let nextFigureDesctiption = null
         let x = mouse.clickPositionX
@@ -63,48 +63,48 @@ class View {
         if(mouse.distY < 0) { rectY = rectY - height }
         if(mouse.distX < 0) { rectX = rectX - width }
 
-        if(menu.shape === "circle" && doKeep) { 
+        if(menu.selectedShape === "circle" && doKeep) { 
             nextFigureDesctiption = `
                 float figure_part_${this.nextFigureNumber}(vec2 position) {
                 vec2 position2 = translate(position,vec2(${x},${y}));
                 float circle = distanceToCircle(position2, ${size});
                 float old = figure_part_${this.nextFigureNumber-1}(position);
-                float sub = ${menu.operation}(old, circle);
+                float sub = ${menu.selectedOperation}(old, circle);
                 return sub;
                 }`
             this.lastFigure = `figure_part_${this.nextFigureNumber}(position);`
-            addHistoryButton()
+            history.addHistoryButton()
 
-        } else if(menu.shape === "circle" && !doKeep) {
+        } else if(menu.selectedShape === "circle" && !doKeep) {
             nextFigureDesctiption = `
                 float figure_part_${this.nextFigureNumber}(vec2 position) {
                 vec2 position2 = translate(position,vec2(${x},${y}));
                 float circle = distanceToCircle(position2, ${size});
                 float old = ${this.lastFigure};
-                float sub = ${menu.operation}(old, circle);
+                float sub = ${menu.selectedOperation}(old, circle);
                 return sub;
                 }`    
                 
-        } else if(menu.shape === "rectangle" && doKeep) { 
+        } else if(menu.selectedShape === "rectangle" && doKeep) { 
             nextFigureDesctiption = `
                 float figure_part_${this.nextFigureNumber}(vec2 position) {
                 vec2 position2 = translate(position,vec2(${rectX},${rectY}));
                 float rectangle = distanceToRectangle(position2, vec2(${width}, ${height}));
                 float old = figure_part_${this.nextFigureNumber-1}(position);
-                float sub = ${menu.operation}(old, rectangle);
+                float sub = ${menu.selectedOperation}(old, rectangle);
                 return sub;
                 }`        
             this.lastFigure = `figure_part_${this.nextFigureNumber}(position);`
-            addHistoryButton()
+            history.addHistoryButton()
 
 
-        } else if(menu.shape === "rectangle" && !doKeep) {
+        } else if(menu.selectedShape === "rectangle" && !doKeep) {
             nextFigureDesctiption = `
                 float figure_part_${this.nextFigureNumber}(vec2 position) {
                 vec2 position2 = translate(position,vec2(${rectX},${rectY}));
                 float rectangle = distanceToRectangle(position2, vec2(${width}, ${height}));
                 float old = ${this.lastFigure};
-                float sub = ${menu.operation}(old, rectangle);
+                float sub = ${menu.selectedOperation}(old, rectangle);
                 return sub;
                 }`                
         }
@@ -117,7 +117,7 @@ class View {
             figureDescription = this.localFigureDescription
         }
 
-        view.drawAllShapes(operationNumber - 1)
+        view.drawAllShapes(history.operationNumber - 1)
 
     }
 }

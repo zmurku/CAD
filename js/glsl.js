@@ -5,6 +5,8 @@ let canvasHeight = 600
 // === GLSL ===
 // ============
 
+// TODO: do klasy wszytko nizej:
+
 function formatNumber(num) {
     if(num%1 === 0){
             return num+".0"

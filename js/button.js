@@ -68,7 +68,7 @@ class Button {
 
     whenRelease(f) {
         this.whenReleaseRegistry.push(f)
-    }  
+    }  /// za uz linijek vvv (i w innych miejscach)
   
 
     _updateStyle() {
@@ -106,9 +106,5 @@ class ButtonPanel {
             }
         })
         return newButton
-        
     }
 }
-
-
-
