@@ -1,11 +1,5 @@
 'use strict'
 
-// =============
-// === Scene ===
-// =============
-
-
-
 class Scene {
     constructor() {
         this.canvasWidth  = 600 
@@ -48,8 +42,6 @@ class Scene {
 
 }
 
-
-// zrobic klase Scene z tego wyzej tak bysmy mogli zrobic
 let scene = new Scene()
 scene.render()
 
@@ -66,6 +58,9 @@ scene.scene.add(mesh)
 // =============
 
 let mouse = {
+    ClickPositionX: 0,
+    ClickPositionY: 0,
+    clickDistance:  0,
     isDown: false,
     distX:  0, 
     distY:  0
@@ -75,52 +70,54 @@ let mouse = {
 // ===================
 // === New Buttons ===
 // ===================
+class Menu {
+    constructor() {
+        this.shapesButtonPanel = new ButtonPanel()
+        this.buttonCircle      = this.shapesButtonPanel.addButton("circle")
+        this.buttonRectangle   = this.shapesButtonPanel.addButton("rectangle")
+        this.buttonTriangle    = this.shapesButtonPanel.addButton("triangle")
 
-let shapesButtonPanel = new ButtonPanel()
-let buttonCircle      = shapesButtonPanel.addButton("circle")
-let buttonRectangle   = shapesButtonPanel.addButton("rectangle")
-let buttonTriangle    = shapesButtonPanel.addButton("triangle")
+        this.shape = null
 
-let shape = null
-buttonCircle.addOnPress(()    => { shape = "circle" })
-buttonRectangle.addOnPress(() => { shape = "rectangle" })
-buttonTriangle.addOnPress(()  => { shape = "triangle" })
+        this.buttonCircle.addOnPress(()    => { this.shape = "circle" })
+        this.buttonRectangle.addOnPress(() => { this.shape = "rectangle" })
+        this.buttonTriangle.addOnPress(()  => { this.shape = "triangle" })
 
-buttonCircle.whenRelease(()    => { shape = null })
-buttonRectangle.whenRelease(() => { shape = null })
-buttonTriangle.whenRelease(()  => { shape = null })
+        this.buttonCircle.whenRelease(()    => { this.shape = null })
+        this.buttonRectangle.whenRelease(() => { this.shape = null })
+        this.buttonTriangle.whenRelease(()  => { this.shape = null })
 
-scene.shapesPanelDiv.appendChild(buttonCircle.domElement)
-scene.shapesPanelDiv.appendChild(buttonRectangle.domElement)
-scene.shapesPanelDiv.appendChild(buttonTriangle.domElement)
+        scene.shapesPanelDiv.appendChild(this.buttonCircle.domElement)
+        scene.shapesPanelDiv.appendChild(this.buttonRectangle.domElement)
+        scene.shapesPanelDiv.appendChild(this.buttonTriangle.domElement)
 
-let operationsButtonPanel = new ButtonPanel()
-let buttonMerge           = operationsButtonPanel.addButton("merge")
-let buttonSubtract        = operationsButtonPanel.addButton("subtract")
-let buttonIntersect       = operationsButtonPanel.addButton("intersect")
+                
+        this.operationsButtonPanel = new ButtonPanel()
 
-let operation = null
+        this.buttonMerge           = this.operationsButtonPanel.addButton("merge")
+        this.buttonSubtract        = this.operationsButtonPanel.addButton("subtract")
+        this.buttonIntersect       = this.operationsButtonPanel.addButton("intersect")
 
-scene.operationsPanelDiv.appendChild(buttonMerge.domElement)
-scene.operationsPanelDiv.appendChild(buttonSubtract.domElement)
-scene.operationsPanelDiv.appendChild(buttonIntersect.domElement)
+        this.operation = null
 
-buttonMerge.addOnPress(()     =>  { operation = "merge" })
-buttonSubtract.addOnPress(()  =>  { operation = "subtract" })
-buttonIntersect.addOnPress(() =>  { operation = "intersect" })
+        scene.operationsPanelDiv.appendChild(this.buttonMerge.domElement)
+        scene.operationsPanelDiv.appendChild(this.buttonSubtract.domElement)
+        scene.operationsPanelDiv.appendChild(this.buttonIntersect.domElement)
 
+        this.buttonMerge.addOnPress(()     =>  { this.operation = "merge" })
+        this.buttonSubtract.addOnPress(()  =>  { this.operation = "subtract" })
+        this.buttonIntersect.addOnPress(() =>  { this.operation = "intersect" })
+    }
+}
 
-
- 
-
+let menu = new Menu()
+console.log(menu)
 // ===============
 // === HISTORY ===
 // ===============
 
 
-let mouseClickPositionX = 0
-let mouseClickPositionY = 0
-let clickDistance       = 0
+
 let historyButtonPanel  = new ButtonPanel()
 let historyButtonNumber = 0
 let operationNumber     = 1
@@ -154,34 +151,34 @@ window.requestAnimationFrame(() => scene.render)
 
 // -------------------------------------------
 
-class Person {
-    constructor(name) {
-        this.name = name
-    }
+// class Person {
+//     constructor(name) {
+//         this.name = name
+//     }
 
-    sayHello() {
-        console.log("Hi, my name is ", this.name)
-    }
-}
+//     sayHello() {
+//         console.log("Hi, my name is ", this.name)
+//     }
+// }
 
 
-let zuzia = new Person("Zuzia")
+// let zuzia = new Person("Zuzia")
 
-function callSayHello(t) {
-    t.sayHello()
-}
+// function callSayHello(t) {
+//     t.sayHello()
+// }
 
-function callMe(f) {
-    f()
-}
+// function callMe(f) {
+//     f()
+// }
 
-console.log("---------------")
-zuzia.sayHello()
-callSayHello(zuzia)
-// callMe(zuzia.sayHello) // NIE DZIALA
-callMe(function() { zuzia.sayHello() })
-callMe(() => { zuzia.sayHello() })
-callMe(zuzia.sayHello.bind(zuzia))
-console.log("---------------")
+// console.log("---------------")
+// zuzia.sayHello()
+// callSayHello(zuzia)
+// // callMe(zuzia.sayHello) // NIE DZIALA
+// callMe(function() { zuzia.sayHello() })
+// callMe(() => { zuzia.sayHello() })
+// callMe(zuzia.sayHello.bind(zuzia))
+// console.log("---------------")
 
 

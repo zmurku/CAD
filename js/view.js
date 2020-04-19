@@ -6,8 +6,8 @@ class View {
         this.localFigureDescription = 0
 
         scene.canvas.addEventListener('mousedown', function(e) {
-            mouseClickPositionX = e.offsetX
-            mouseClickPositionY = canvasHeight - e.offsetY 
+            mouse.clickPositionX = e.offsetX
+            mouse.ClickPositionY = canvasHeight - e.offsetY 
             mouse.isDown        = true
         })
 
@@ -18,8 +18,8 @@ class View {
 
         scene.canvas.addEventListener('mousemove', (e) => {
             if(mouse.isDown) {
-                    mouse.distX    = e.offsetX - mouseClickPositionX
-                    mouse.distY    = (canvasHeight - e.offsetY) - mouseClickPositionY
+                    mouse.distX    = e.offsetX - mouse.clickPositionX
+                    mouse.distY    = (canvasHeight - e.offsetY) - mouse.ClickPositionY
                     let distanceXY = (Math.sqrt(mouse.distX*mouse.distX + mouse.distY*mouse.distY))
                     this.clickDistance  = distanceXY 
                     this.addNewOperation(false)
@@ -49,62 +49,62 @@ class View {
     
     addNewOperation(doKeep) {
         let size = 0
-        let invalidInput = !shape || !operation
+        let invalidInput = !menu.shape || !menu.operation
         if (invalidInput) return  
         let nextFigureDesctiption = null
-        let x = mouseClickPositionX
-        let y = mouseClickPositionY
+        let x = mouse.clickPositionX
+        let y = mouse.ClickPositionY
         let width  = Math.abs(mouse.distX)
         let height = Math.abs(mouse.distY)
-        let rectX  = mouseClickPositionX + width/2
-        let rectY  = mouseClickPositionY + height/2
+        let rectX  = mouse.clickPositionX + width/2
+        let rectY  = mouse.ClickPositionY + height/2
         size = formatNumber(this.clickDistance)
 
         if(mouse.distY < 0) { rectY = rectY - height }
         if(mouse.distX < 0) { rectX = rectX - width }
 
-        if(shape === "circle" && doKeep) { 
+        if(menu.shape === "circle" && doKeep) { 
             nextFigureDesctiption = `
                 float figure_part_${this.nextFigureNumber}(vec2 position) {
                 vec2 position2 = translate(position,vec2(${x},${y}));
                 float circle = distanceToCircle(position2, ${size});
                 float old = figure_part_${this.nextFigureNumber-1}(position);
-                float sub = ${operation}(old, circle);
+                float sub = ${menu.operation}(old, circle);
                 return sub;
                 }`
             this.lastFigure = `figure_part_${this.nextFigureNumber}(position);`
             addHistoryButton()
 
-        } else if(shape === "circle" && !doKeep) {
+        } else if(menu.shape === "circle" && !doKeep) {
             nextFigureDesctiption = `
                 float figure_part_${this.nextFigureNumber}(vec2 position) {
                 vec2 position2 = translate(position,vec2(${x},${y}));
                 float circle = distanceToCircle(position2, ${size});
                 float old = ${this.lastFigure};
-                float sub = ${operation}(old, circle);
+                float sub = ${menu.operation}(old, circle);
                 return sub;
                 }`    
                 
-        } else if(shape === "rectangle" && doKeep) { 
+        } else if(menu.shape === "rectangle" && doKeep) { 
             nextFigureDesctiption = `
                 float figure_part_${this.nextFigureNumber}(vec2 position) {
                 vec2 position2 = translate(position,vec2(${rectX},${rectY}));
                 float rectangle = distanceToRectangle(position2, vec2(${width}, ${height}));
                 float old = figure_part_${this.nextFigureNumber-1}(position);
-                float sub = ${operation}(old, rectangle);
+                float sub = ${menu.operation}(old, rectangle);
                 return sub;
                 }`        
             this.lastFigure = `figure_part_${this.nextFigureNumber}(position);`
             addHistoryButton()
 
 
-        } else if(shape === "rectangle" && !doKeep) {
+        } else if(menu.shape === "rectangle" && !doKeep) {
             nextFigureDesctiption = `
                 float figure_part_${this.nextFigureNumber}(vec2 position) {
                 vec2 position2 = translate(position,vec2(${rectX},${rectY}));
                 float rectangle = distanceToRectangle(position2, vec2(${width}, ${height}));
                 float old = ${this.lastFigure};
-                float sub = ${operation}(old, rectangle);
+                float sub = ${menu.operation}(old, rectangle);
                 return sub;
                 }`                
         }
