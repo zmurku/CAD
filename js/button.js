@@ -2,12 +2,12 @@ class Button {
     constructor(name) {
         this.isPressed       = false
         this.isHovered       = false 
-        this.whenReleaseRegistry = []
         this.onPressRegistry = []
         this.name            = name
         let divElement       = document.createElement("div")
         divElement.id        = this.name
-        divElement.innerText = this.name
+        divElement.innerText = this.name    
+        this.whenReleaseRegistry = []
         divElement.style.setProperty("background-color", "#888888")
         divElement.style.setProperty("width", "100px")
         divElement.style.setProperty("height", "64px")
@@ -24,7 +24,7 @@ class Button {
     /// Wciska przycisk i wykonuje wszystkie callbaci zarejestrowane w `onPressRegistry`.
     press() {
         // Dla kazdej funkcji `f`, bedacej elementem `onPressRegistry` wykonuje ją.
-        for(let f of this.onPressRegistry){
+        for(let f of this.onPressRegistry) {
             f()
         }
         this.isPressed = true
@@ -33,7 +33,7 @@ class Button {
 
     /// Wyciska przycisk.
     release() {
-        for(let f of this.whenReleaseRegistry){
+        for(let f of this.whenReleaseRegistry) {
             f()
         }
         this.isPressed = false 

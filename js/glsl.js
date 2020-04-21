@@ -177,7 +177,6 @@ class Glsl {
         `
 
         this.fragmentShader = this.fragmentShaderHeader + this.figureDescription + 
-        this.fragmentShaderColorFigure + this.fragmentShaderEnding 
+                              this.fragmentShaderColorFigure + this.fragmentShaderEnding 
     }
 }
-

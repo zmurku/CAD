@@ -18,7 +18,7 @@ class Scene {
         ])
         this.itemsPerElement       = 3
         this.geometry.setAttribute('position', new THREE.BufferAttribute(this.vertices,this.itemsPerElement))
-        this.geometry.dynamic          = true
+        this.geometry.dynamic      = true
         this.canvas                = document.getElementById('viewport')
         this.canvas.appendChild(this.renderer.domElement)
         this.shapesPanelDiv        = document.getElementById('button-panel')  
@@ -28,17 +28,17 @@ class Scene {
         this.nearClippingPlane     = 1
         this.farClippingPlane      = 500
         this.camera                = new THREE.PerspectiveCamera(this.fieldOfViewDegrees, this.aspectRatio, 
-                                    this.nearClippingPlane, this.farClippingPlane) 
+                                     this.nearClippingPlane, this.farClippingPlane) 
         this.camera.position.set(0, 0, 100)
         this.camera.lookAt(0, 0, 0); 
         let extensions = {
         derivatives: true
         } 
-        this.glsl = new Glsl(canvas)
-        let vertexShader = this.glsl.vertexShader
+        this.glsl          = new Glsl(canvas)
+        let vertexShader   = this.glsl.vertexShader
         let fragmentShader = this.glsl.fragmentShader
-        let material = new THREE.ShaderMaterial({vertexShader,fragmentShader,extensions})
-        this.mesh     = new THREE.Mesh(this.geometry, material)
+        let material       = new THREE.ShaderMaterial({vertexShader,fragmentShader,extensions})
+        this.mesh          = new THREE.Mesh(this.geometry, material)
         this.scene.add(this.mesh)
     }
 
@@ -46,5 +46,4 @@ class Scene {
         this.renderer.render(this.scene, this.camera)
         window.requestAnimationFrame(() => this.render())
     }
-
 }

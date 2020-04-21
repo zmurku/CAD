@@ -4,4 +4,3 @@ class Canvas {
         this.height = 600
     }
 }
-

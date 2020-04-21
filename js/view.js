@@ -7,7 +7,7 @@ class View {
         this.lastFigure             = `figure_part_0(position)`   
         this.localFigureDescription = 0
         this.mouse = new Mouse()
-        this.history = new History()
+        this.history = new History(scene, this)
 
         scene.canvas.addEventListener('mousedown', (e) => {
             this.mouse.clickPositionX = e.offsetX
@@ -24,7 +24,8 @@ class View {
             if(this.mouse.isDown) {
                 this.mouse.distX    = e.offsetX - this.mouse.clickPositionX
                 this.mouse.distY    = (scene.myCanvas.height - e.offsetY) - this.mouse.clickPositionY
-                let distanceXY = (Math.sqrt(this.mouse.distX*this.mouse.distX + this.mouse.distY*this.mouse.distY))
+                let distanceXY      = (Math.sqrt(this.mouse.distX*this.mouse.distX + 
+                                      this.mouse.distY*this.mouse.distY))
                 this.clickDistance  = distanceXY 
                 this.addNewOperation(false)
             }
@@ -116,7 +117,6 @@ class View {
                 }`                
         }
 
-
         this.localFigureDescription = this.scene.glsl.figureDescription + nextFigureDesctiption
 
         if(doKeep) {
@@ -128,4 +128,3 @@ class View {
 
     }
 }
-
