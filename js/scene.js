@@ -1,51 +1,130 @@
-'use strict'
+/// Scene is responsible for drawing and displaying figures.
+class Scene{ 
+    constructor(canvas, menu) {
+        this.canvas = canvas
+        this.menu = menu
+        this.nextFigureNumber       = 1 
+        this.lastFigure             = `figure_part_0(position)`   
+        this.localFigureDescription = 0
+        this.mouse = new Mouse()
+        this.historyButtonPanel = new HistoryButtonPanel(canvas, this)
 
-/// The area where shapes 2D is drawn. The "THREE.js" library is used for drawing. The shapes are 
-/// defined by the generated glsl code. See `Glsl` for more information.
-class Canvas { 
-    constructor(sceneSize) {
-        this.myCanvas = sceneSize
-        this.renderer = new THREE.WebGLRenderer()
-        this.renderer.setSize(sceneSize.width, sceneSize.height)
-        this.scene    = new THREE.Scene()
-        this.geometry = new THREE.BufferGeometry()
-        this.vertices = new Float32Array([
-            -1.0, -1.0,  0.0,
-             1.0, -1.0,  0.0,
-             1.0,  1.0,  0.0,
-        
-             1.0,  1.0,  0.0,
-            -1.0,  1.0,  0.0,
-            -1.0, -1.0,  0.0
-        ])
-        this.itemsPerElement       = 3
-        this.geometry.setAttribute('position', new THREE.BufferAttribute(this.vertices,this.itemsPerElement))
-        this.geometry.dynamic      = true
-        this.sceneSize                = document.getElementById('viewport')
-        this.sceneSize.appendChild(this.renderer.domElement)
-        this.shapesPanelDiv        = document.getElementById('button-panel')  
-        this.operationsPanelDiv    = document.getElementById('button-panel-2')
-        this.fieldOfViewDegrees    = 45 
-        this.aspectRatio           = window.innerWidth / window.innerHeight
-        this.nearClippingPlane     = 1
-        this.farClippingPlane      = 500
-        this.camera                = new THREE.PerspectiveCamera(this.fieldOfViewDegrees, this.aspectRatio, 
-                                     this.nearClippingPlane, this.farClippingPlane) 
-        this.camera.position.set(0, 0, 100)
-        this.camera.lookAt(0, 0, 0); 
-        let extensions = {
-        derivatives: true
-        } 
-        this.glsl          = new Glsl(sceneSize)
-        let vertexShader   = this.glsl.vertexShader
-        let fragmentShader = this.glsl.fragmentShader
-        let material       = new THREE.ShaderMaterial({vertexShader,fragmentShader,extensions})
-        this.mesh          = new THREE.Mesh(this.geometry, material)
-        this.scene.add(this.mesh)
+        canvas.sceneSize.addEventListener('mousedown', (e) => {
+            this.mouse.clickPositionX = e.offsetX
+            this.mouse.clickPositionY = canvas.myCanvas.height - e.offsetY 
+            this.mouse.isDown         = true
+        })
+
+        canvas.sceneSize.addEventListener('mouseup', (e) => {
+            this.mouse.isDown = false
+            this.addNewOperation(true)
+        })
+
+        canvas.sceneSize.addEventListener('mousemove', (e) => {
+            if(this.mouse.isDown) {
+                this.mouse.distX    = e.offsetX - this.mouse.clickPositionX
+                this.mouse.distY    = (canvas.myCanvas.height - e.offsetY) - this.mouse.clickPositionY
+                let distanceXY      = (Math.sqrt(this.mouse.distX*this.mouse.distX + 
+                                      this.mouse.distY*this.mouse.distY))
+                this.clickDistance  = distanceXY 
+                this.addNewOperation(false)
+            }
+        })        
     }
 
-    render() {
-        this.renderer.render(this.scene, this.camera)
-        window.requestAnimationFrame(() => this.render())
+    drawAllShapes(shapeNumber) {
+        let codeForTranslatingAllShapesToColor = `
+            vec4 colorFigure(vec2 position) {
+                float distance = figure_part_${shapeNumber}(position);
+                float distance_outer= grow(distance,3.0);
+                float border = subtract(distance_outer,distance);
+                float alpha    = render(border);
+                return vec4(1.0, 1.0, 1.0, alpha);
+                }
+                    `
+        let extensions = {
+            derivatives: true
+            }             
+    
+        let fragmentShader2 = this.canvas.glslTemplate.fragmentShaderHeader + this.localFigureDescription + 
+                              codeForTranslatingAllShapesToColor + this.canvas.glslTemplate.fragmentShaderEnding 
+        let material2       = new THREE.ShaderMaterial({vertexShader:this.canvas.glslTemplate.vertexShader,
+                              fragmentShader:fragmentShader2,extensions})
+        this.canvas.mesh.material       = material2
+    
+    } 
+    
+    
+    addNewOperation(doKeep) {
+        let size = 0
+        let invalidInput = !this.menu.selectedShape || !this.menu.selectedOperation
+        if (invalidInput) return  
+        let nextFigureDesctiption = null
+        let x = this.mouse.clickPositionX
+        let y = this.mouse.clickPositionY
+        let width  = Math.abs(this.mouse.distX)
+        let height = Math.abs(this.mouse.distY)
+        let rectX  = this.mouse.clickPositionX + width/2
+        let rectY  = this.mouse.clickPositionY + height/2
+        size = formatNumber(this.clickDistance)
+
+        if(this.mouse.distY < 0) { rectY = rectY - height }
+        if(this.mouse.distX < 0) { rectX = rectX - width }
+
+        if(this.menu.selectedShape === "circle" && doKeep) { 
+            nextFigureDesctiption = `
+                float figure_part_${this.nextFigureNumber}(vec2 position) {
+                vec2 position2 = translate(position,vec2(${x},${y}));
+                float circle = distanceToCircle(position2, ${size});
+                float old = figure_part_${this.nextFigureNumber-1}(position);
+                float sub = ${this.menu.selectedOperation}(old, circle);
+                return sub;
+                }`
+            this.lastFigure = `figure_part_${this.nextFigureNumber}(position);`
+            this.historyButtonPanel.addHistoryButton()
+
+        } else if(this.menu.selectedShape === "circle" && !doKeep) {
+            nextFigureDesctiption = `
+                float figure_part_${this.nextFigureNumber}(vec2 position) {
+                vec2 position2 = translate(position,vec2(${x},${y}));
+                float circle = distanceToCircle(position2, ${size});
+                float old = ${this.lastFigure};
+                float sub = ${this.menu.selectedOperation}(old, circle);
+                return sub;
+                }`    
+                
+        } else if(this.menu.selectedShape === "rectangle" && doKeep) { 
+            nextFigureDesctiption = `
+                float figure_part_${this.nextFigureNumber}(vec2 position) {
+                vec2 position2 = translate(position,vec2(${rectX},${rectY}));
+                float rectangle = distanceToRectangle(position2, vec2(${width}, ${height}));
+                float old = figure_part_${this.nextFigureNumber-1}(position);
+                float sub = ${this.menu.selectedOperation}(old, rectangle);
+                return sub;
+                }`        
+            this.lastFigure = `figure_part_${this.nextFigureNumber}(position);`
+            this.historyButtonPanel.addHistoryButton()
+
+
+        } else if(this.menu.selectedShape === "rectangle" && !doKeep) {
+            nextFigureDesctiption = `
+                float figure_part_${this.nextFigureNumber}(vec2 position) {
+                vec2 position2 = translate(position,vec2(${rectX},${rectY}));
+                float rectangle = distanceToRectangle(position2, vec2(${width}, ${height}));
+                float old = ${this.lastFigure};
+                float sub = ${this.menu.selectedOperation}(old, rectangle);
+                return sub;
+                }`                
+        }
+
+        this.localFigureDescription = this.canvas.glslTemplate.figureDescription + nextFigureDesctiption
+
+        if(doKeep) {
+            this.nextFigureNumber += 1
+            this.canvas.glslTemplate.figureDescription = this.localFigureDescription
+        }
+
+        this.drawAllShapes(this.historyButtonPanel.operationNumber - 1)
+
     }
 }

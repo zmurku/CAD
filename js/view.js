@@ -46,9 +46,9 @@ class Scene{
             derivatives: true
             }             
     
-        let fragmentShader2 = this.canvas.glsl.fragmentShaderHeader + this.localFigureDescription + 
-                              codeForTranslatingAllShapesToColor + this.canvas.glsl.fragmentShaderEnding 
-        let material2       = new THREE.ShaderMaterial({vertexShader:this.canvas.glsl.vertexShader,
+        let fragmentShader2 = this.canvas.glslTemplate.fragmentShaderHeader + this.localFigureDescription + 
+                              codeForTranslatingAllShapesToColor + this.canvas.glslTemplate.fragmentShaderEnding 
+        let material2       = new THREE.ShaderMaterial({vertexShader:this.canvas.glslTemplate.vertexShader,
                               fragmentShader:fragmentShader2,extensions})
         this.canvas.mesh.material       = material2
     
@@ -117,11 +117,11 @@ class Scene{
                 }`                
         }
 
-        this.localFigureDescription = this.canvas.glsl.figureDescription + nextFigureDesctiption
+        this.localFigureDescription = this.canvas.glslTemplate.figureDescription + nextFigureDesctiption
 
         if(doKeep) {
             this.nextFigureNumber += 1
-            this.canvas.glsl.figureDescription = this.localFigureDescription
+            this.canvas.glslTemplate.figureDescription = this.localFigureDescription
         }
 
         this.drawAllShapes(this.historyButtonPanel.operationNumber - 1)

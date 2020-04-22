@@ -7,7 +7,8 @@ function formatNumber(num) {
     }    
 } 
 
-class Glsl {
+/// Holds fragments of glsl code that are used in the `drawAllShapes` method. 
+class GlslTemplate {
     constructor(sceneSize) {
         this.vertexShader = `
         varying vec2 currentPixelPosition;
@@ -180,3 +181,5 @@ class Glsl {
                               this.fragmentShaderColorFigure + this.fragmentShaderEnding 
     }
 }
+
+
