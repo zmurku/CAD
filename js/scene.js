@@ -1,9 +1,8 @@
 'use strict'
 
-/// Obszar, na którym rysowane są kształty 2D. Do rysowania używana jest biblioteka THREE.js. 
-/// Kształty definiowane są przy pomocy generowanego kodu glsl. Zobacz `Glsl` żeby dowiedzieć
-/// się więcej.
-class Canvas { // zmienic na Canvas
+/// The area where shapes 2D is drawn. The "THREE.js" library is used for drawing. The shapes are 
+/// defined by the generated glsl code. See `Glsl` for more information.
+class Canvas { 
     constructor(sceneSize) {
         this.myCanvas = sceneSize
         this.renderer = new THREE.WebGLRenderer()

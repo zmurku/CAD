@@ -1,14 +1,13 @@
-// Odpowiada za rysowanie i wyświetlanie figur na scenie. 
-
-class View { // to Scene
-    constructor(canvas,menu) {
+/// Scene is responsible for drawing and displaying figures.
+class Scene{ 
+    constructor(canvas, menu) {
         this.canvas = canvas
         this.menu = menu
         this.nextFigureNumber       = 1 
         this.lastFigure             = `figure_part_0(position)`   
         this.localFigureDescription = 0
         this.mouse = new Mouse()
-        this.history = new History(canvas, this)
+        this.historyButtonPanel = new HistoryButtonPanel(canvas, this)
 
         canvas.sceneSize.addEventListener('mousedown', (e) => {
             this.mouse.clickPositionX = e.offsetX
@@ -82,7 +81,7 @@ class View { // to Scene
                 return sub;
                 }`
             this.lastFigure = `figure_part_${this.nextFigureNumber}(position);`
-            this.history.addHistoryButton()
+            this.historyButtonPanel.addHistoryButton()
 
         } else if(this.menu.selectedShape === "circle" && !doKeep) {
             nextFigureDesctiption = `
@@ -104,7 +103,7 @@ class View { // to Scene
                 return sub;
                 }`        
             this.lastFigure = `figure_part_${this.nextFigureNumber}(position);`
-            this.history.addHistoryButton()
+            this.historyButtonPanel.addHistoryButton()
 
 
         } else if(this.menu.selectedShape === "rectangle" && !doKeep) {
@@ -125,7 +124,7 @@ class View { // to Scene
             this.canvas.glsl.figureDescription = this.localFigureDescription
         }
 
-        this.drawAllShapes(this.history.operationNumber - 1)
+        this.drawAllShapes(this.historyButtonPanel.operationNumber - 1)
 
     }
 }

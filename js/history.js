@@ -1,20 +1,13 @@
-// 1. zbior przyciskow
-// 2. przechowujainformacje o numerze operacji 
-// 3. Po kliknieciu naprzycisk wyswietlany jest widok zapamietany podnumeremprzycisku.
-
-// Po wykonanej operacji tworzy nowy przycisk w panelu historii,
-// przypisuje mu numer, pod którym zapamiętany jest aktualny 
-// widok (figury wyświetlone na scenie). Umożliwia to cofanie się 
-// do poprzednich widoków. 
-
-class History { /// rename -> HistoryButtonPanel
-    constructor(canvas, view) {
+/// A set of buttons that store information about the operation number. After clicking on 
+/// the button, the view that has been saved under the button number is displayed.
+class HistoryButtonPanel { 
+    constructor(canvas, scene) {
         this.historyButtonPanelDiv = document.getElementById('history-button-panel')
         this.historyButtonPanel    = new ButtonPanel()
         this.historyButtonNumber   = 0
         this.operationNumber       = 1
         this.canvas = canvas  
-        this.view  = view
+        this.scene  = scene
     }
     addHistoryButton() {
         let historyButton          = this.historyButtonPanel.addButton("operation " + this.operationNumber,"history")
@@ -24,7 +17,7 @@ class History { /// rename -> HistoryButtonPanel
         this.historyButtonPanelDiv.appendChild(historyButton.domElement)
         historyButton.press()
         historyButton.addOnPress(() => {
-            this.view.drawAllShapes(currentOperationNumber)
+            this.scene.drawAllShapes(currentOperationNumber)
         })
        
     }

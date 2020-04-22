@@ -1,9 +1,13 @@
 /// A set of two `ButtonPanel`s allowing to choose shape and operation to perform. `Menu` remembers
-/// the choosen shape and operation in the `selectedShape` and `selectedOperation` fields 
-/// respectively. If no shape oroperation is choosen, the fields are set to `null`.
+/// the chosen shape and operation in the `selectedShape` and `selectedOperation` fields 
+/// respectively. If no shape or operation is chosen, the fields are set to `null`.
 class Menu {
     constructor(canvas) {
-        // Tworzenie przycisków w panelu kształtów.
+        this.canvas = canvas
+        this.createShapesPanel()       
+        this.createOperationsPanel()
+    }
+    createShapesPanel() {
         this.shapesButtonPanel = new ButtonPanel()
         this.buttonCircle      = this.shapesButtonPanel.addButton("circle")
         this.buttonRectangle   = this.shapesButtonPanel.addButton("rectangle")
@@ -19,11 +23,12 @@ class Menu {
         this.buttonRectangle.whenRelease(() => { this.selectedShape = null })
         this.buttonTriangle.whenRelease(()  => { this.selectedShape = null })
 
-        canvas.shapesPanelDiv.appendChild(this.buttonCircle.domElement)
-        canvas.shapesPanelDiv.appendChild(this.buttonRectangle.domElement)
-        canvas.shapesPanelDiv.appendChild(this.buttonTriangle.domElement)
+        this.canvas.shapesPanelDiv.appendChild(this.buttonCircle.domElement)
+        this.canvas.shapesPanelDiv.appendChild(this.buttonRectangle.domElement)
+        this.canvas.shapesPanelDiv.appendChild(this.buttonTriangle.domElement)
+    }
 
-        // Tworzenie przycisków w panelu operacji.         
+    createOperationsPanel() {
         this.operationsButtonPanel = new ButtonPanel()
         this.buttonMerge           = this.operationsButtonPanel.addButton("merge")
         this.buttonSubtract        = this.operationsButtonPanel.addButton("subtract")
@@ -31,16 +36,12 @@ class Menu {
 
         this.selectedOperation = null
 
-        canvas.operationsPanelDiv.appendChild(this.buttonMerge.domElement)
-        canvas.operationsPanelDiv.appendChild(this.buttonSubtract.domElement)
-        canvas.operationsPanelDiv.appendChild(this.buttonIntersect.domElement)
+        this.canvas.operationsPanelDiv.appendChild(this.buttonMerge.domElement)
+        this.canvas.operationsPanelDiv.appendChild(this.buttonSubtract.domElement)
+        this.canvas.operationsPanelDiv.appendChild(this.buttonIntersect.domElement)
 
         this.buttonMerge.addOnPress(()     =>  { this.selectedOperation = "merge" })
         this.buttonSubtract.addOnPress(()  =>  { this.selectedOperation = "subtract" })
         this.buttonIntersect.addOnPress(() =>  { this.selectedOperation = "intersect" })
     }
-
-    // createShapePanel() {
-        
-    // }
 }

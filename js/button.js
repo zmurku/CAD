@@ -1,5 +1,5 @@
-// Visual button element which you can register calbacks to after a specific action i done, like
-// the button was clicked.
+/// Visual button element which you can register callbacks to after a specific action it has done, 
+/// like the button was clicked.
 class Button {
     constructor(name) {
         this.isPressed       = false
@@ -20,9 +20,7 @@ class Button {
         this.domElement = divElement
     }
 
-    // Wciska przycisk i wykonuje wszystkie callbacki zarejestrowane w `onPressRegistry`.
     press() {
-        // Dla kazdej funkcji `f`, bedacej elementem `onPressRegistry` wykonuje ją.
         for(let f of this.onPressRegistry) {
             f()
         }
@@ -30,7 +28,6 @@ class Button {
         this._updateStyle()
     }
 
-    // Wyciska przycisk.
     release() {
         for(let f of this.whenReleaseRegistry) {
             f()
@@ -39,7 +36,6 @@ class Button {
         this._updateStyle()
     }
 
-    // Wciska przycisk, kiedy nie jest wciśnięty i wyciska go, gdy jest wciśnięty.
     toggle() {
         if(this.isPressed) {
             this.release()
@@ -48,19 +44,16 @@ class Button {
         }
     }
 
-    // Ustawia przycisk w trybie "najechania".
     over() {
         this.isHovered = true
         this._updateStyle()
     }
 
-    // Ustawia przycisk w trybie "zjechania".
     out() {
         this.isHovered = false
         this._updateStyle()
     }
 
-    // Przyjmuje callback, który zostanie wykonany po wciśnięciu przycisku. 
     addOnPress(f) {
         this.onPressRegistry.push(f)
     }    
@@ -87,13 +80,12 @@ class Button {
 
 }
 
-// Set of buttons where only one button can be pressed.
+/// Set of buttons where only one button can be pressed.
 class ButtonPanel {
     constructor() {
         this.buttons = []
     }
     
-    // Creates a new button and addsit to this panel.
     addButton(name) {
         let newButton = new Button(name)
         this.buttons.push(newButton)
