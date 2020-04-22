@@ -1,3 +1,5 @@
+// Visual button element which you can register calbacks to after a specific action i done, like
+// the button was clicked.
 class Button {
     constructor(name) {
         this.isPressed       = false
@@ -12,16 +14,13 @@ class Button {
         divElement.style.setProperty("width", "100px")
         divElement.style.setProperty("height", "64px")
         divElement.style.setProperty("display", "inline-block")
-
         divElement.addEventListener("mouseover" , () => { this.over() })
         divElement.addEventListener("mouseout"  , () => { this.out() })
         divElement.addEventListener("mousedown" , () => { this.toggle() })
-        
         this.domElement = divElement
     }
 
-        
-    /// Wciska przycisk i wykonuje wszystkie callbaci zarejestrowane w `onPressRegistry`.
+    // Wciska przycisk i wykonuje wszystkie callbacki zarejestrowane w `onPressRegistry`.
     press() {
         // Dla kazdej funkcji `f`, bedacej elementem `onPressRegistry` wykonuje ją.
         for(let f of this.onPressRegistry) {
@@ -31,7 +30,7 @@ class Button {
         this._updateStyle()
     }
 
-    /// Wyciska przycisk.
+    // Wyciska przycisk.
     release() {
         for(let f of this.whenReleaseRegistry) {
             f()
@@ -40,7 +39,7 @@ class Button {
         this._updateStyle()
     }
 
-    /// Wciska przycisk, kiedy nie jest wciśnięty i wyciska go, gdy jest wciśnięty.
+    // Wciska przycisk, kiedy nie jest wciśnięty i wyciska go, gdy jest wciśnięty.
     toggle() {
         if(this.isPressed) {
             this.release()
@@ -49,27 +48,26 @@ class Button {
         }
     }
 
-    /// Ustawia przycisk w trybie "najechania".
+    // Ustawia przycisk w trybie "najechania".
     over() {
         this.isHovered = true
         this._updateStyle()
     }
 
-    /// Ustawia przycisk w trybie "zjechania".
+    // Ustawia przycisk w trybie "zjechania".
     out() {
         this.isHovered = false
         this._updateStyle()
     }
 
-    /// Przyjmuje callback, który zostanie wykonany po wciśnięciu przycisku. 
+    // Przyjmuje callback, który zostanie wykonany po wciśnięciu przycisku. 
     addOnPress(f) {
         this.onPressRegistry.push(f)
     }    
 
     whenRelease(f) {
         this.whenReleaseRegistry.push(f)
-    }  /// za uz linijek vvv (i w innych miejscach)
-  
+    }  
 
     _updateStyle() {
         let darkBlue  = "#003B62"
@@ -89,14 +87,13 @@ class Button {
 
 }
 
-// Allows creating new buttons. Remembers them and in case a button is pressed, makes all other
-// buttons released.
+// Set of buttons where only one button can be pressed.
 class ButtonPanel {
     constructor() {
         this.buttons = []
     }
     
-    /// Creates a new button in this panel.
+    // Creates a new button and addsit to this panel.
     addButton(name) {
         let newButton = new Button(name)
         this.buttons.push(newButton)

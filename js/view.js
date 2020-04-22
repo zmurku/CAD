@@ -1,5 +1,6 @@
+// Odpowiada za rysowanie i wyświetlanie figur na scenie. 
 
-class View {
+class View { // to Scene
     constructor(scene,menu) {
         this.scene = scene
         this.menu = menu

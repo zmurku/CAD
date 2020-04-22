@@ -1,6 +1,9 @@
-
+/// A set of two `ButtonPanel`s allowing to choose shape and operation to perform. `Menu` remembers
+/// the choosen shape and operation in the `selectedShape` and `selectedOperation` fields 
+/// respectively. If no shape oroperation is choosen, the fields are set to `null`.
 class Menu {
     constructor(scene) {
+        // Tworzenie przycisków w panelu kształtów.
         this.shapesButtonPanel = new ButtonPanel()
         this.buttonCircle      = this.shapesButtonPanel.addButton("circle")
         this.buttonRectangle   = this.shapesButtonPanel.addButton("rectangle")
@@ -20,7 +23,7 @@ class Menu {
         scene.shapesPanelDiv.appendChild(this.buttonRectangle.domElement)
         scene.shapesPanelDiv.appendChild(this.buttonTriangle.domElement)
 
-                
+        // Tworzenie przycisków w panelu operacji.         
         this.operationsButtonPanel = new ButtonPanel()
         this.buttonMerge           = this.operationsButtonPanel.addButton("merge")
         this.buttonSubtract        = this.operationsButtonPanel.addButton("subtract")
@@ -36,6 +39,8 @@ class Menu {
         this.buttonSubtract.addOnPress(()  =>  { this.selectedOperation = "subtract" })
         this.buttonIntersect.addOnPress(() =>  { this.selectedOperation = "intersect" })
     }
+
+    // createShapePanel() {
+        
+    // }
 }
-
-

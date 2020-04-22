@@ -1,6 +1,9 @@
 'use strict'
 
-class Scene {
+/// Obszar, na którym rysowane są kształty 2D. Do rysowania używana jest biblioteka THREE.js. 
+/// Kształty definiowane są przy pomocy generowanego kodu glsl. Zobacz `Glsl` żeby dowiedzieć
+/// się więcej.
+class Scene { // zmienic na Canvas
     constructor(canvas) {
         this.myCanvas = canvas
         this.renderer = new THREE.WebGLRenderer()

@@ -1,5 +1,4 @@
-
-// todo: klasa zamiast obiektu:
+/// Set of mouse-related information.
 class Mouse {
     constructor() {
         this.clickPositionX = 0
@@ -10,4 +9,3 @@ class Mouse {
         this.distY          = 0
     }
 }
-
