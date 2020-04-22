@@ -1,30 +1,30 @@
 // Odpowiada za rysowanie i wyświetlanie figur na scenie. 
 
 class View { // to Scene
-    constructor(scene,menu) {
-        this.scene = scene
+    constructor(canvas,menu) {
+        this.canvas = canvas
         this.menu = menu
         this.nextFigureNumber       = 1 
         this.lastFigure             = `figure_part_0(position)`   
         this.localFigureDescription = 0
         this.mouse = new Mouse()
-        this.history = new History(scene, this)
+        this.history = new History(canvas, this)
 
-        scene.canvas.addEventListener('mousedown', (e) => {
+        canvas.sceneSize.addEventListener('mousedown', (e) => {
             this.mouse.clickPositionX = e.offsetX
-            this.mouse.clickPositionY = scene.myCanvas.height - e.offsetY 
+            this.mouse.clickPositionY = canvas.myCanvas.height - e.offsetY 
             this.mouse.isDown         = true
         })
 
-        scene.canvas.addEventListener('mouseup', (e) => {
+        canvas.sceneSize.addEventListener('mouseup', (e) => {
             this.mouse.isDown = false
             this.addNewOperation(true)
         })
 
-        scene.canvas.addEventListener('mousemove', (e) => {
+        canvas.sceneSize.addEventListener('mousemove', (e) => {
             if(this.mouse.isDown) {
                 this.mouse.distX    = e.offsetX - this.mouse.clickPositionX
-                this.mouse.distY    = (scene.myCanvas.height - e.offsetY) - this.mouse.clickPositionY
+                this.mouse.distY    = (canvas.myCanvas.height - e.offsetY) - this.mouse.clickPositionY
                 let distanceXY      = (Math.sqrt(this.mouse.distX*this.mouse.distX + 
                                       this.mouse.distY*this.mouse.distY))
                 this.clickDistance  = distanceXY 
@@ -47,11 +47,11 @@ class View { // to Scene
             derivatives: true
             }             
     
-        let fragmentShader2 = this.scene.glsl.fragmentShaderHeader + this.localFigureDescription + 
-                              codeForTranslatingAllShapesToColor + this.scene.glsl.fragmentShaderEnding 
-        let material2       = new THREE.ShaderMaterial({vertexShader:this.scene.glsl.vertexShader,
+        let fragmentShader2 = this.canvas.glsl.fragmentShaderHeader + this.localFigureDescription + 
+                              codeForTranslatingAllShapesToColor + this.canvas.glsl.fragmentShaderEnding 
+        let material2       = new THREE.ShaderMaterial({vertexShader:this.canvas.glsl.vertexShader,
                               fragmentShader:fragmentShader2,extensions})
-        this.scene.mesh.material       = material2
+        this.canvas.mesh.material       = material2
     
     } 
     
@@ -118,11 +118,11 @@ class View { // to Scene
                 }`                
         }
 
-        this.localFigureDescription = this.scene.glsl.figureDescription + nextFigureDesctiption
+        this.localFigureDescription = this.canvas.glsl.figureDescription + nextFigureDesctiption
 
         if(doKeep) {
             this.nextFigureNumber += 1
-            this.scene.glsl.figureDescription = this.localFigureDescription
+            this.canvas.glsl.figureDescription = this.localFigureDescription
         }
 
         this.drawAllShapes(this.history.operationNumber - 1)

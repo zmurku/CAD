@@ -2,7 +2,7 @@
 /// the choosen shape and operation in the `selectedShape` and `selectedOperation` fields 
 /// respectively. If no shape oroperation is choosen, the fields are set to `null`.
 class Menu {
-    constructor(scene) {
+    constructor(canvas) {
         // Tworzenie przycisków w panelu kształtów.
         this.shapesButtonPanel = new ButtonPanel()
         this.buttonCircle      = this.shapesButtonPanel.addButton("circle")
@@ -19,9 +19,9 @@ class Menu {
         this.buttonRectangle.whenRelease(() => { this.selectedShape = null })
         this.buttonTriangle.whenRelease(()  => { this.selectedShape = null })
 
-        scene.shapesPanelDiv.appendChild(this.buttonCircle.domElement)
-        scene.shapesPanelDiv.appendChild(this.buttonRectangle.domElement)
-        scene.shapesPanelDiv.appendChild(this.buttonTriangle.domElement)
+        canvas.shapesPanelDiv.appendChild(this.buttonCircle.domElement)
+        canvas.shapesPanelDiv.appendChild(this.buttonRectangle.domElement)
+        canvas.shapesPanelDiv.appendChild(this.buttonTriangle.domElement)
 
         // Tworzenie przycisków w panelu operacji.         
         this.operationsButtonPanel = new ButtonPanel()
@@ -31,9 +31,9 @@ class Menu {
 
         this.selectedOperation = null
 
-        scene.operationsPanelDiv.appendChild(this.buttonMerge.domElement)
-        scene.operationsPanelDiv.appendChild(this.buttonSubtract.domElement)
-        scene.operationsPanelDiv.appendChild(this.buttonIntersect.domElement)
+        canvas.operationsPanelDiv.appendChild(this.buttonMerge.domElement)
+        canvas.operationsPanelDiv.appendChild(this.buttonSubtract.domElement)
+        canvas.operationsPanelDiv.appendChild(this.buttonIntersect.domElement)
 
         this.buttonMerge.addOnPress(()     =>  { this.selectedOperation = "merge" })
         this.buttonSubtract.addOnPress(()  =>  { this.selectedOperation = "subtract" })

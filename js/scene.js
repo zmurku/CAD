@@ -3,11 +3,11 @@
 /// Obszar, na którym rysowane są kształty 2D. Do rysowania używana jest biblioteka THREE.js. 
 /// Kształty definiowane są przy pomocy generowanego kodu glsl. Zobacz `Glsl` żeby dowiedzieć
 /// się więcej.
-class Scene { // zmienic na Canvas
-    constructor(canvas) {
-        this.myCanvas = canvas
+class Canvas { // zmienic na Canvas
+    constructor(sceneSize) {
+        this.myCanvas = sceneSize
         this.renderer = new THREE.WebGLRenderer()
-        this.renderer.setSize(canvas.width, canvas.height)
+        this.renderer.setSize(sceneSize.width, sceneSize.height)
         this.scene    = new THREE.Scene()
         this.geometry = new THREE.BufferGeometry()
         this.vertices = new Float32Array([
@@ -22,8 +22,8 @@ class Scene { // zmienic na Canvas
         this.itemsPerElement       = 3
         this.geometry.setAttribute('position', new THREE.BufferAttribute(this.vertices,this.itemsPerElement))
         this.geometry.dynamic      = true
-        this.canvas                = document.getElementById('viewport')
-        this.canvas.appendChild(this.renderer.domElement)
+        this.sceneSize                = document.getElementById('viewport')
+        this.sceneSize.appendChild(this.renderer.domElement)
         this.shapesPanelDiv        = document.getElementById('button-panel')  
         this.operationsPanelDiv    = document.getElementById('button-panel-2')
         this.fieldOfViewDegrees    = 45 
@@ -37,7 +37,7 @@ class Scene { // zmienic na Canvas
         let extensions = {
         derivatives: true
         } 
-        this.glsl          = new Glsl(canvas)
+        this.glsl          = new Glsl(sceneSize)
         let vertexShader   = this.glsl.vertexShader
         let fragmentShader = this.glsl.fragmentShader
         let material       = new THREE.ShaderMaterial({vertexShader,fragmentShader,extensions})

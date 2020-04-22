@@ -8,12 +8,12 @@
 // do poprzednich widoków. 
 
 class History { /// rename -> HistoryButtonPanel
-    constructor(scene, view) {
+    constructor(canvas, view) {
         this.historyButtonPanelDiv = document.getElementById('history-button-panel')
         this.historyButtonPanel    = new ButtonPanel()
         this.historyButtonNumber   = 0
         this.operationNumber       = 1
-        this.scene = scene  
+        this.canvas = canvas  
         this.view  = view
     }
     addHistoryButton() {

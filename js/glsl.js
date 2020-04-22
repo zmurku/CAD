@@ -8,14 +8,14 @@ function formatNumber(num) {
 } 
 
 class Glsl {
-    constructor(canvas) {
+    constructor(sceneSize) {
         this.vertexShader = `
         varying vec2 currentPixelPosition;
         void main() {
             vec3 position2 = position + vec3(1.0,1.0,0.0);
             currentPixelPosition.x = position2.x / 2.0;
             currentPixelPosition.y = position2.y / 2.0;
-            currentPixelPosition = currentPixelPosition * ${canvas.width}.0;
+            currentPixelPosition = currentPixelPosition * ${sceneSize.width}.0;
             // Contains the position of the current vertex.
             gl_Position = vec4(position.x,position.y,position.z,1.0); 
         }
@@ -138,7 +138,7 @@ class Glsl {
         `
         this.fragmentShaderEnding = `
         float background(vec2 position) {
-            float rectangle = distanceToRectangle(position, vec2(${canvas.width}.0, ${canvas.height}.0));
+            float rectangle = distanceToRectangle(position, vec2(${sceneSize.width}.0, ${sceneSize.height}.0));
             return rectangle;
         }
         vec4 mix_colors(vec4 background, vec4 foreground) {
@@ -170,7 +170,7 @@ class Glsl {
         `
         this.figureDescription = `
         float figure_part_0(vec2 position) {
-            vec2 position2 = translate(position, vec2(${canvas.width*2}.0, ${canvas.height*2}.0));
+            vec2 position2 = translate(position, vec2(${sceneSize.width*2}.0, ${sceneSize.height*2}.0));
             float rectangle = distanceToRectangle(position2, vec2(200.0, 200.0));
             return rectangle;
         }
