@@ -1,6 +1,6 @@
 class SceneSize { 
     constructor() {
-        this.width  = 600
-        this.height = 600
+        this.width  = globalThis.outerWidth
+        this.height = globalThis.outerHeight
     }
 }

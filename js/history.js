@@ -2,7 +2,7 @@
 /// the button, the view that has been saved under the button number is displayed.
 class HistoryButtonPanel { 
     constructor(canvas, scene) {
-        this.historyButtonPanelDiv = document.getElementById('history-button-panel')
+        this.historyButtonPanelDiv = document.getElementById('history-panel')
         this.historyButtonPanel    = new ButtonPanel()
         this.historyButtonNumber   = 0
         this.operationNumber       = 1
@@ -14,6 +14,7 @@ class HistoryButtonPanel {
         let currentOperationNumber = this.operationNumber 
         this.operationNumber       = this.operationNumber + 1
         this.historyButtonNumber   = this.historyButtonNumber + 1
+        console.log(this.historyButtonPanelDiv)
         this.historyButtonPanelDiv.appendChild(historyButton.domElement)
         historyButton.press()
         historyButton.addOnPress(() => {

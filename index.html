@@ -5,35 +5,81 @@
 		<title>MurCAD</title>
 		<style>
 			body { margin: 0; }
-			#canvas { 
+			canvas { 
 				display: flex;
-				width: 64px; 
-				}
+			}
+			.tool-panel {
+				position: absolute;
+				background-color: rgb(0,0,0,0);
+				height: 100vh;
+				width: 200px;
+				border-radius: 10px;
+				margin: 30px;
+				text-align:center;
+				font-family: 'Lato', sans-serif;
+			}
+
+			.shape-panel {
+				padding: 1em 0 1em 0;
+				height: 250px;
+				background-color: rgb(0,0,0,0.5);
+				color: white;
+				margin-bottom: 10px;
+				border-top-left-radius: 30px;
+				border-top-right-radius: 30px;
+			}
+			.operation-panel {
+				padding: 1em 0 1em 0;
+				height: 250px;
+				background-color: rgb(0,0,0,0.5);
+				color: white;
+				margin-bottom: 10px;
+				border-bottom-left-radius: 30px;
+				border-bottom-right-radius: 30px;
+			}
 			#button-panel {
+				position:absolute;
 				height: 32px;
 			}
 			#button-panel-2 {
+				position:absolute;
 				height: 32px;
 			}
-			#history-button-panel {
-				height: 100%;
+			#history-panel {
+				right:0;
+				position:absolute;
+				background-color: rgb(0,0,0,0.5);
+				height: 575px;
+				width: 200px;
+				margin-right:10px;
+				margin: 30px;
+				border-radius: 30px;
+				text-align:center;
+				font-family: 'Lato', sans-serif;
 				overflow: scroll;
 			}
 		</style>
+		<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;900&display=swap" rel="stylesheet">
 	</head>
 	<body>
-		<div id="canvas">
+		<div class="canvas">
+			<div id="history-panel"></div>
+			<div class="tool-panel">
+				<div class= "shape-panel">
+					<b>SHAPE</b>
+					<div id="button-panel">
+					</div>
+				</div>
+				<div class= "operation-panel">
+					<b>OPERATION</b>
+					<div id="button-panel-2">
+					</div>
+				</div>
+			</div>
 		    <div id="left-panel">
-
-				<div id="button-panel">
-				</div>
-				<div id="button-panel-2">
-				</div>
-				
 				<div id="viewport"></div>
 			 </div>
 			 <div id="right-panel">
-				<div id="history-button-panel">
 				</div>
 			 </div>
 
