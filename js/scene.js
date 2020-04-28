@@ -67,6 +67,7 @@ class Scene{
         let rectX  = this.mouse.clickPositionX + width/2
         let rectY  = this.mouse.clickPositionY + height/2
         size = formatNumber(this.clickDistance)
+        console.log(size)
 
         if(this.mouse.distY < 0) { rectY = rectY - height }
         if(this.mouse.distX < 0) { rectX = rectX - width }

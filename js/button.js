@@ -6,18 +6,18 @@ class Button {
         this.isHovered       = false 
         this.onPressRegistry = []
         this.name            = name
-        let divElement       = document.createElement("div")
-        divElement.id        = this.name
-        divElement.innerText = this.name    
+        this.divElement       = document.createElement("div")
+        this.divElement.id        = this.name
+        this.divElement.innerText = this.name    
         this.whenReleaseRegistry = []
-        divElement.style.setProperty("background-color", "#888888")
-        divElement.style.setProperty("width", "100px")
-        divElement.style.setProperty("height", "64px")
-        divElement.style.setProperty("display", "inline-block")
-        divElement.addEventListener("mouseover" , () => { this.over() })
-        divElement.addEventListener("mouseout"  , () => { this.out() })
-        divElement.addEventListener("mousedown" , () => { this.toggle() })
-        this.domElement = divElement
+        this.divElement.style.setProperty("background-color", "#888888")
+        this.divElement.style.setProperty("width", "100px")
+        this.divElement.style.setProperty("height", "44px")
+        this.divElement.style.setProperty("display", "inline-block")
+        this.divElement.addEventListener("mouseover" , () => { this.over() })
+        this.divElement.addEventListener("mouseout"  , () => { this.out() })
+        this.divElement.addEventListener("mousedown" , () => { this.toggle() })
+        this.domElement = this.divElement
     }
 
     press() {
@@ -61,6 +61,10 @@ class Button {
     whenRelease(f) {
         this.whenReleaseRegistry.push(f)
     }  
+
+    setIcon(svg) {
+        this.divElement.innerHTML = svg   
+    }
 
     _updateStyle() {
         let darkBlue  = "#003B62"

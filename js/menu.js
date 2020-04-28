@@ -29,10 +29,14 @@ class Menu {
     }
 
     createOperationsPanel() {
+        let icons = new Icons()
         this.operationsButtonPanel = new ButtonPanel()
         this.buttonMerge           = this.operationsButtonPanel.addButton("merge")
         this.buttonSubtract        = this.operationsButtonPanel.addButton("subtract")
         this.buttonIntersect       = this.operationsButtonPanel.addButton("intersect")
+        this.buttonMerge.setIcon(icons.merge())
+        this.buttonIntersect.setIcon(icons.intersect())
+        this.buttonSubtract.setIcon(icons.subtract())
 
         this.selectedOperation = null
 

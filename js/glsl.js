@@ -1,10 +1,12 @@
 
 function formatNumber(num) {
     if(num%1 === 0){
-            return num+".0"
+        return num+".0"
+    } else if(num%1 !== 0 && num !== undefined) {
+        return num.toString()
     } else {
-            return num.toString()
-    }    
+        return "0.0"
+    }
 } 
 
 /// Holds fragments of glsl code that are used in the `drawAllShapes` method. 
