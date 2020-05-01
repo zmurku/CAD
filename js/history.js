@@ -5,7 +5,7 @@
 class HistoryButtonPanel { 
     constructor(canvas, scene) {
        
-        this.historyButtonPanelDiv = document.getElementById('history-panel')
+        this.historyButtonPanelDiv = document.getElementById('history')
         this.historyButtonPanel    = new ButtonPanel()
         this.historyButtonNumber   = 0
         this.operationNumber       = 1

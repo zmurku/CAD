@@ -18,7 +18,8 @@ class GlslTemplate {
             vec3 position2 = position + vec3(1.0,1.0,0.0);
             currentPixelPosition.x = position2.x / 2.0;
             currentPixelPosition.y = position2.y / 2.0;
-            currentPixelPosition = currentPixelPosition * ${sceneSize.width}.0;
+            currentPixelPosition.x = currentPixelPosition.x * ${sceneSize.width}.0;
+            currentPixelPosition.y = currentPixelPosition.y * ${sceneSize.height}.0;
             // Contains the position of the current vertex.
             gl_Position = vec4(position.x,position.y,position.z,1.0); 
         }
