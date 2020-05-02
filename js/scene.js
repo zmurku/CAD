@@ -4,10 +4,12 @@ class Scene{
         this.canvas = canvas
         this.menu = menu
         this.nextFigureNumber       = 1 
-        this.lastFigure             = `figure_part_0(position)`   
+        this.lastFigureNumber             = `figure_part_0(position)`   
         this.localFigureDescription = 0
         this.mouse = new Mouse()
-        this.historyButtonPanel = new HistoryButtonPanel(canvas, this)
+        this.historyButtonPanel    = new HistoryButtonPanel(canvas, this)
+        this.operationNumber       = 0
+
 
         canvas.sceneSize.addEventListener('mousedown', (e) => {
             this.mouse.clickPositionX = e.offsetX
@@ -35,7 +37,7 @@ class Scene{
     drawAllShapes(shapeNumber) {
         let codeForTranslatingAllShapesToColor = `
             vec4 colorFigure(vec2 position) {
-                float distance = figure_part_${shapeNumber}(position);
+                float distance = figure_part_${shapeNumber + 1}(position);
                 float distance_outer= grow(distance,3.0);
                 float border = subtract(distance_outer,distance);
                 float alpha    = render(border);
@@ -50,6 +52,9 @@ class Scene{
                               codeForTranslatingAllShapesToColor + this.canvas.glslTemplate.fragmentShaderEnding 
         let material2       = new THREE.ShaderMaterial({vertexShader:this.canvas.glslTemplate.vertexShader,
                               fragmentShader:fragmentShader2,extensions})
+
+        console.log("----------")
+        console.log(fragmentShader2)
         this.canvas.mesh.material       = material2
     
     } 
@@ -76,23 +81,26 @@ class Scene{
                 float figure_part_${this.nextFigureNumber}(vec2 position) {
                 vec2 position2 = translate(position,vec2(${x},${y}));
                 float circle = distanceToCircle(position2, ${size});
-                float current_figure = figure_part_${this.nextFigureNumber-1}(position);
+                float current_figure = figure_part_${this.nextFigureNumber - 1}(position);
                 float sub = ${this.menu.selectedOperation}(current_figure, circle);
                 return sub;
                 }`
-            this.lastFigure = `figure_part_${this.nextFigureNumber}(position);`
+            this.lastFigureNumber = `figure_part_${this.nextFigureNumber - 1}(position);`
+            this.operationNumber       = this.operationNumber + 1
             this.historyButtonPanel.addHistoryButton()
+            
 
         } else if(this.menu.selectedShape === "circle" && !doKeep) {
             nextFigureDesctiption = `
                 float figure_part_${this.nextFigureNumber}(vec2 position) {
                 vec2 position2 = translate(position,vec2(${x},${y}));
                 float circle = distanceToCircle(position2, ${size});
-                float current_figure = ${this.lastFigure};
+                float current_figure = ${this.lastFigureNumber};
                 float sub = ${this.menu.selectedOperation}(current_figure, circle);
                 return sub;
                 }`    
-                
+            
+
         } else if(this.menu.selectedShape === "rectangle" && doKeep) { 
             nextFigureDesctiption = `
                 float figure_part_${this.nextFigureNumber}(vec2 position) {
@@ -102,7 +110,8 @@ class Scene{
                 float sub = ${this.menu.selectedOperation}(current_figure, rectangle);
                 return sub;
                 }`        
-            this.lastFigure = `figure_part_${this.nextFigureNumber}(position);`
+            this.lastFigureNumber = `figure_part_${this.nextFigureNumber}(position);`
+            this.operationNumber       = this.operationNumber + 1
             this.historyButtonPanel.addHistoryButton()
 
 
@@ -111,7 +120,7 @@ class Scene{
                 float figure_part_${this.nextFigureNumber}(vec2 position) {
                 vec2 position2 = translate(position,vec2(${rectX},${rectY}));
                 float rectangle = distanceToRectangle(position2, vec2(${width}, ${height}));
-                float current_figure = ${this.lastFigure};
+                float current_figure = ${this.lastFigureNumber};
                 float sub = ${this.menu.selectedOperation}(current_figure, rectangle);
                 return sub;
                 }`                
@@ -119,13 +128,19 @@ class Scene{
 
         this.localFigureDescription = this.canvas.glslTemplate.figureDescription + nextFigureDesctiption
 
+
         if(doKeep) {
             this.nextFigureNumber += 1
             this.canvas.glslTemplate.figureDescription = this.localFigureDescription
-        }
+        } else {
+            let dontKeepNextFigureDescription = this.localFigureDescription
+            dontKeepNextFigureDescription = this.canvas.glslTemplate.figureDescription + nextFigureDesctiption
 
-        this.drawAllShapes(this.historyButtonPanel.operationNumber - 1)
-        console.log(this.historyButtonPanel.operationNumber)
+
+        }
+        // console.log(this.localFigureDescription)
+
+        this.drawAllShapes(this.operationNumber -1)
 
     }
 }

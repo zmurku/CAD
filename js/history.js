@@ -8,15 +8,13 @@ class HistoryButtonPanel {
         this.historyButtonPanelDiv = document.getElementById('history')
         this.historyButtonPanel    = new ButtonPanel()
         this.historyButtonNumber   = 0
-        this.operationNumber       = 1
         this.canvas = canvas  
         this.scene  = scene
     }
     addHistoryButton() {
         let objDiv = document.getElementById('history-panel')
         objDiv.scrollTop = objDiv.scrollHeight
-        let currentOperationNumber = this.operationNumber 
-        this.operationNumber       = this.operationNumber + 1
+        let currentOperationNumber = this.scene.operationNumber 
         this.historyButtonNumber   = this.historyButtonNumber + 1
         let historyButton          = this.historyButtonPanel.addButton("operation " + currentOperationNumber,"history")
         this.historyButtonPanelDiv.appendChild(historyButton.domElement)
