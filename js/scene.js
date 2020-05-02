@@ -8,7 +8,7 @@ class Scene{
         this.localFigureDescription = 0
         this.mouse = new Mouse()
         this.historyButtonPanel    = new HistoryButtonPanel(canvas, this)
-        this.operationNumber       = 0
+        this.operationNumber       = 1
 
 
         canvas.sceneSize.addEventListener('mousedown', (e) => {
@@ -37,7 +37,7 @@ class Scene{
     drawAllShapes(shapeNumber) {
         let codeForTranslatingAllShapesToColor = `
             vec4 colorFigure(vec2 position) {
-                float distance = figure_part_${shapeNumber + 1}(position);
+                float distance = figure_part_${shapeNumber}(position);
                 float distance_outer= grow(distance,3.0);
                 float border = subtract(distance_outer,distance);
                 float alpha    = render(border);
@@ -85,9 +85,6 @@ class Scene{
                 float sub = ${this.menu.selectedOperation}(current_figure, circle);
                 return sub;
                 }`
-            this.lastFigureNumber = `figure_part_${this.nextFigureNumber - 1}(position);`
-            this.operationNumber       = this.operationNumber + 1
-            this.historyButtonPanel.addHistoryButton()
             
 
         } else if(this.menu.selectedShape === "circle" && !doKeep) {
@@ -110,9 +107,7 @@ class Scene{
                 float sub = ${this.menu.selectedOperation}(current_figure, rectangle);
                 return sub;
                 }`        
-            this.lastFigureNumber = `figure_part_${this.nextFigureNumber}(position);`
-            this.operationNumber       = this.operationNumber + 1
-            this.historyButtonPanel.addHistoryButton()
+        
 
 
         } else if(this.menu.selectedShape === "rectangle" && !doKeep) {
@@ -130,17 +125,21 @@ class Scene{
 
 
         if(doKeep) {
+            this.lastFigureNumber = `figure_part_${this.nextFigureNumber}(position);`
+            this.historyButtonPanel.addHistoryButton()
+            this.operationNumber  += 1
             this.nextFigureNumber += 1
             this.canvas.glslTemplate.figureDescription = this.localFigureDescription
+            this.drawAllShapes(this.operationNumber -1)
         } else {
             let dontKeepNextFigureDescription = this.localFigureDescription
             dontKeepNextFigureDescription = this.canvas.glslTemplate.figureDescription + nextFigureDesctiption
-
+            this.drawAllShapes(this.operationNumber)
 
         }
         // console.log(this.localFigureDescription)
 
-        this.drawAllShapes(this.operationNumber -1)
+        
 
     }
 }
