@@ -15,7 +15,6 @@ class HistoryButtonPanel {
     addHistoryButton() {
         let objDiv = document.getElementById('history-panel')
         objDiv.scrollTop = objDiv.scrollHeight
-        console.log(objDiv.scrollTop)
         let currentOperationNumber = this.operationNumber 
         this.operationNumber       = this.operationNumber + 1
         this.historyButtonNumber   = this.historyButtonNumber + 1

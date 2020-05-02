@@ -67,18 +67,17 @@ class Scene{
         let rectX  = this.mouse.clickPositionX + width/2
         let rectY  = this.mouse.clickPositionY + height/2
         size = formatNumber(this.clickDistance)
-        console.log(size)
 
         if(this.mouse.distY < 0) { rectY = rectY - height }
         if(this.mouse.distX < 0) { rectX = rectX - width }
 
-        if(this.menu.selectedShape === "circle" && doKeep) { 
+        if(this.menu.selectedShape === "circle" && doKeep) {
             nextFigureDesctiption = `
                 float figure_part_${this.nextFigureNumber}(vec2 position) {
                 vec2 position2 = translate(position,vec2(${x},${y}));
                 float circle = distanceToCircle(position2, ${size});
-                float old = figure_part_${this.nextFigureNumber-1}(position);
-                float sub = ${this.menu.selectedOperation}(old, circle);
+                float current_figure = figure_part_${this.nextFigureNumber-1}(position);
+                float sub = ${this.menu.selectedOperation}(current_figure, circle);
                 return sub;
                 }`
             this.lastFigure = `figure_part_${this.nextFigureNumber}(position);`
@@ -89,8 +88,8 @@ class Scene{
                 float figure_part_${this.nextFigureNumber}(vec2 position) {
                 vec2 position2 = translate(position,vec2(${x},${y}));
                 float circle = distanceToCircle(position2, ${size});
-                float old = ${this.lastFigure};
-                float sub = ${this.menu.selectedOperation}(old, circle);
+                float current_figure = ${this.lastFigure};
+                float sub = ${this.menu.selectedOperation}(current_figure, circle);
                 return sub;
                 }`    
                 
@@ -99,8 +98,8 @@ class Scene{
                 float figure_part_${this.nextFigureNumber}(vec2 position) {
                 vec2 position2 = translate(position,vec2(${rectX},${rectY}));
                 float rectangle = distanceToRectangle(position2, vec2(${width}, ${height}));
-                float old = figure_part_${this.nextFigureNumber-1}(position);
-                float sub = ${this.menu.selectedOperation}(old, rectangle);
+                float current_figure = figure_part_${this.nextFigureNumber-1}(position);
+                float sub = ${this.menu.selectedOperation}(current_figure, rectangle);
                 return sub;
                 }`        
             this.lastFigure = `figure_part_${this.nextFigureNumber}(position);`
@@ -112,8 +111,8 @@ class Scene{
                 float figure_part_${this.nextFigureNumber}(vec2 position) {
                 vec2 position2 = translate(position,vec2(${rectX},${rectY}));
                 float rectangle = distanceToRectangle(position2, vec2(${width}, ${height}));
-                float old = ${this.lastFigure};
-                float sub = ${this.menu.selectedOperation}(old, rectangle);
+                float current_figure = ${this.lastFigure};
+                float sub = ${this.menu.selectedOperation}(current_figure, rectangle);
                 return sub;
                 }`                
         }
@@ -126,6 +125,7 @@ class Scene{
         }
 
         this.drawAllShapes(this.historyButtonPanel.operationNumber - 1)
+        console.log(this.historyButtonPanel.operationNumber)
 
     }
 }
