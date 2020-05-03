@@ -11,7 +11,7 @@ class Button {
         this.divElement.innerText = this.name    
         this.whenReleaseRegistry  = []
         this.divElement.style.setProperty("background-color", "#00000000")
-        this.divElement.style.setProperty("width", "60px")
+        this.divElement.style.setProperty("width", "62px")
         this.divElement.style.setProperty("height", "44px")
         this.divElement.style.setProperty("display", "inline-block")
         this.divElement.addEventListener("mouseover" , () => { this.over() })

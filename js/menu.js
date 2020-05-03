@@ -7,6 +7,7 @@ class Menu {
         this.canvas = canvas
         this.createShapesPanel()       
         this.createOperationsPanel()
+    
     }
     createShapesPanel() {
         this.shapesButtonPanel = new ButtonPanel()
@@ -15,7 +16,7 @@ class Menu {
         //this.buttonTriangle    = this.shapesButtonPanel.addButton("triangle")
         this.buttonCircle.setIcon(this.icons.circle())
         this.buttonRectangle.setIcon(this.icons.rectangle())
-
+        
         this.selectedShape = null
 
         this.buttonCircle.addOnPress(()    => { this.selectedShape = "circle" })
@@ -29,6 +30,7 @@ class Menu {
         this.canvas.shapesPanelDiv.appendChild(this.buttonCircle.domElement)
         this.canvas.shapesPanelDiv.appendChild(this.buttonRectangle.domElement)
         //this.canvas.shapesPanelDiv.appendChild(this.buttonTriangle.domElement)
+        this.buttonCircle.press()
     }
 
     createOperationsPanel() {
@@ -39,7 +41,7 @@ class Menu {
         this.buttonMerge.setIcon(this.icons.merge())
         this.buttonIntersect.setIcon(this.icons.intersect())
         this.buttonSubtract.setIcon(this.icons.subtract())
-
+       
         this.selectedOperation = null
 
         this.canvas.operationsPanelDiv.appendChild(this.buttonMerge.domElement)
@@ -49,5 +51,6 @@ class Menu {
         this.buttonMerge.addOnPress(()     =>  { this.selectedOperation = "merge" })
         this.buttonSubtract.addOnPress(()  =>  { this.selectedOperation = "subtract" })
         this.buttonIntersect.addOnPress(() =>  { this.selectedOperation = "intersect" })
+        this.buttonMerge.press()
     }
 }

@@ -126,7 +126,7 @@ class Scene{
 
         if(doKeep) {
             this.lastFigureNumber = `figure_part_${this.nextFigureNumber}(position);`
-            this.historyButtonPanel.addHistoryButton()
+            this.historyButtonPanel.addHistoryButton(this.menu.selectedOperation)
             this.operationNumber  += 1
             this.nextFigureNumber += 1
             this.canvas.glslTemplate.figureDescription = this.localFigureDescription
