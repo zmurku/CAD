@@ -13,7 +13,6 @@ class Menu {
         this.shapesButtonPanel = new ButtonPanel()
         this.buttonCircle      = this.shapesButtonPanel.addButton("circle")
         this.buttonRectangle   = this.shapesButtonPanel.addButton("rectangle")
-        //this.buttonTriangle    = this.shapesButtonPanel.addButton("triangle")
         this.buttonCircle.setIcon(this.icons.circle())
         this.buttonRectangle.setIcon(this.icons.rectangle())
         
@@ -21,15 +20,12 @@ class Menu {
 
         this.buttonCircle.addOnPress(()    => { this.selectedShape = "circle" })
         this.buttonRectangle.addOnPress(() => { this.selectedShape = "rectangle" })
-        //this.buttonTriangle.addOnPress(()  => { this.selectedShape = "triangle" })
 
         this.buttonCircle.whenRelease(()    => { this.selectedShape = null })
         this.buttonRectangle.whenRelease(() => { this.selectedShape = null })
-        //this.buttonTriangle.whenRelease(()  => { this.selectedShape = null })
 
         this.canvas.shapesPanelDiv.appendChild(this.buttonCircle.domElement)
         this.canvas.shapesPanelDiv.appendChild(this.buttonRectangle.domElement)
-        //this.canvas.shapesPanelDiv.appendChild(this.buttonTriangle.domElement)
         this.buttonCircle.press()
     }
 

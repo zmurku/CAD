@@ -11,7 +11,7 @@ class Button {
         this.divElement.innerText = this.name    
         this.whenReleaseRegistry  = []
         this.divElement.style.setProperty("background-color", "#00000000")
-        this.divElement.style.setProperty("width", "62px")
+        this.divElement.style.setProperty("width", "63px")
         this.divElement.style.setProperty("height", "44px")
         this.divElement.style.setProperty("display", "inline-block")
         this.divElement.addEventListener("mouseover" , () => { this.over() })
@@ -69,6 +69,10 @@ class Button {
     setIcon(svg) {
         this.divElement.innerHTML = svg   
         this.updateOpacity()
+    }
+
+    historyWidth() {
+        this.divElement.style.setProperty("width", "150px")
     }
 
     // _updateStyle() {

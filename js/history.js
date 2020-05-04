@@ -20,9 +20,9 @@ class HistoryButtonPanel {
         this.historyButtonPanelDiv.appendChild(historyButton.domElement)
         //console.log(this.historyButtonPanelDiv)
         historyButton.press()
+        historyButton.historyWidth()
         historyButton.addOnPress(() => {
             this.scene.drawAllShapes(currentOperationNumber)
-            // updateHistoryButtonPanel()
         })
         
     }
