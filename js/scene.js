@@ -8,8 +8,9 @@ class Scene{
         this.localFigureDescription = 0
         this.mouse = new Mouse()
         this.historyButtonPanel    = new HistoryButtonPanel(canvas, this)
-        this.operationNumber       = 1
+        this.operationNumber       = 0
 
+        
 
         canvas.sceneSize.addEventListener('mousedown', (e) => {
             this.mouse.clickPositionX = e.offsetX
@@ -32,6 +33,49 @@ class Scene{
                 this.addNewOperation(false)
             }
         })        
+
+        // document.addEventListener('keydown', (event)=> {
+        //     if (event.ctrlKey && event.key === 'z') {
+        //         this.operationNumber -= 1
+        //         if(this.operationNumber < 0) {
+        //             this.operationNumber += 1
+        //             return undefined
+        //         } else {
+        //             this.drawAllShapes(this.operationNumber)
+        //         }
+        //     } else if(event.ctrlKey && event.key === 'y') {
+        //         this.operationNumber += 1
+        //         if(this.operationNumber < this.nextFigureNumber) {
+        //             this.drawAllShapes(this.operationNumber)
+        //         } else {
+        //             this.operationNumber -= 1
+        //             return undefined
+        //         }
+        //     }    
+        // });
+
+        document.addEventListener('keydown', (event)=> {
+            console.log(event)
+            if (event.ctrlKey && event.key === 'z') {
+               this.undo()
+            } else if(event.ctrlKey && event.key === 'y') {
+                this.redo()
+            }    
+        })
+    }
+
+    undo() {
+        if(this.operationNumber > 0) {
+            this.operationNumber -= 1
+            this.drawAllShapes(this.operationNumber)
+        }
+    }
+
+    redo() {
+        if(this.operationNumber < this.nextFigureNumber - 1) {
+            this.operationNumber += 1
+            this.drawAllShapes(this.operationNumber)
+        }
     }
 
     drawAllShapes(shapeNumber) {
@@ -53,11 +97,10 @@ class Scene{
         let material2       = new THREE.ShaderMaterial({vertexShader:this.canvas.glslTemplate.vertexShader,
                               fragmentShader:fragmentShader2,extensions})
 
-        console.log("----------")
-        console.log(fragmentShader2)
         this.canvas.mesh.material       = material2
     
     } 
+    
     
     
     addNewOperation(doKeep) {
@@ -127,19 +170,16 @@ class Scene{
         if(doKeep) {
             this.lastFigureNumber = `figure_part_${this.nextFigureNumber}(position);`
             this.historyButtonPanel.addHistoryButton(this.menu.selectedOperation)
-            this.operationNumber  += 1
+            this.operationNumber  = this.nextFigureNumber
             this.nextFigureNumber += 1
             this.canvas.glslTemplate.figureDescription = this.localFigureDescription
-            this.drawAllShapes(this.operationNumber -1)
+            this.drawAllShapes(this.operationNumber)
         } else {
             let dontKeepNextFigureDescription = this.localFigureDescription
             dontKeepNextFigureDescription = this.canvas.glslTemplate.figureDescription + nextFigureDesctiption
-            this.drawAllShapes(this.operationNumber)
+            this.drawAllShapes(this.operationNumber + 1)
 
-        }
-        // console.log(this.localFigureDescription)
-
-        
+        } 
 
     }
 }

@@ -24,8 +24,12 @@ class HistoryButtonPanel {
             this.scene.drawAllShapes(currentOperationNumber)
             // updateHistoryButtonPanel()
         })
+        
     }
     // updateHistoryButtonPanel() {
         
     // }
+    
 }
+
+
