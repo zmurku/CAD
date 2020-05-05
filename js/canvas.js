@@ -42,6 +42,7 @@ class Canvas {
         let material       = new THREE.ShaderMaterial({vertexShader,fragmentShader,extensions})
         this.mesh          = new THREE.Mesh(this.geometry, material)
         this.scene.add(this.mesh)
+        
     }
 
     render() {

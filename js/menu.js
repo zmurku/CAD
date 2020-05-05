@@ -15,6 +15,7 @@ class Menu {
         this.buttonRectangle   = this.shapesButtonPanel.addButton("rectangle")
         this.buttonCircle.setIcon(this.icons.circle())
         this.buttonRectangle.setIcon(this.icons.rectangle())
+
         
         this.selectedShape = null
 
