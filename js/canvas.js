@@ -21,7 +21,7 @@ class Canvas {
         this.itemsPerElement       = 3
         this.geometry.setAttribute('position', new THREE.BufferAttribute(this.vertices,this.itemsPerElement))
         this.geometry.dynamic      = true
-        this.sceneSize                = document.getElementById('viewport')
+        this.sceneSize             = document.getElementById('viewport')
         this.sceneSize.appendChild(this.renderer.domElement)
         this.shapesPanelDiv        = document.getElementById('button-panel')  
         this.operationsPanelDiv    = document.getElementById('button-panel-2')

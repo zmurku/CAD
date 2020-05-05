@@ -34,28 +34,8 @@ class Scene{
             }
         })        
 
-        // document.addEventListener('keydown', (event)=> {
-        //     if (event.ctrlKey && event.key === 'z') {
-        //         this.operationNumber -= 1
-        //         if(this.operationNumber < 0) {
-        //             this.operationNumber += 1
-        //             return undefined
-        //         } else {
-        //             this.drawAllShapes(this.operationNumber)
-        //         }
-        //     } else if(event.ctrlKey && event.key === 'y') {
-        //         this.operationNumber += 1
-        //         if(this.operationNumber < this.nextFigureNumber) {
-        //             this.drawAllShapes(this.operationNumber)
-        //         } else {
-        //             this.operationNumber -= 1
-        //             return undefined
-        //         }
-        //     }    
-        // });
 
         document.addEventListener('keydown', (event)=> {
-            console.log(event)
             if (event.ctrlKey && event.key === 'z') {
                this.undo()
             } else if(event.ctrlKey && event.key === 'y') {
